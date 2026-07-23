@@ -38,7 +38,7 @@ export const crearUsuario = async (req, res) => {
   try {
     const usuario = await usersService.crearUsuario(req.body)
 
-    res.status(201).json({
+    res.status(201).json({ 
       status: 'success',
       payload: usuario
     })

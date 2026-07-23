@@ -1,25 +1,53 @@
-# Resto API - Pre-entrega 1
+# Resto API
 
-API backend para la gestion de productos y usuarios de un restaurante.
+API REST para la gestion de un restaurante.
 
-El proyecto utiliza Node.js, Express, MongoDB, Mongoose y dotenv. La estructura esta organizada por capas para separar responsabilidades.
+El proyecto adapta una consigna pensada originalmente para un dominio logistico al contexto de un restaurante. En lugar de trabajar con repartidores y entregas, el sistema se orienta a usuarios, productos del menu, empleados y pedidos o comandas.
 
-## Tecnologias
+## Adaptacion del dominio
+
+| Dominio logistico | Dominio restaurante |
+| --- | --- |
+| Usuario | Usuario |
+| Repartidor | Empleado |
+| Pedido | Pedido |
+| Entrega | Reserva o comanda |
+
+Entidades principales del proyecto:
+
+- `Usuarios`: usuarios del sistema.
+- `Productos`: productos o platos del menu.
+- `Empleados`: empleados del restaurante.
+- `Pedidos`: pedidos o comandas del restaurante.
+
+## Tecnologias utilizadas
 
 - Node.js
 - Express
-- MongoDB Atlas
+- MongoDB
 - Mongoose
-- dotenv
-- ES Modules
+- Dotenv
+- JavaScript ES Modules
 
-## Instalacion
+## Instalacion y setup
+
+Clonar el repositorio:
+
+```bash
+git clone URL_DEL_REPOSITORIO
+```
+
+Entrar a la carpeta del proyecto:
+
+```bash
+cd resto-api
+```
+
+Instalar dependencias:
 
 ```bash
 npm install
 ```
-
-## Variables de entorno
 
 Crear un archivo `.env` en la raiz del proyecto:
 
@@ -29,17 +57,7 @@ MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@CLUSTER.mongodb.net/resto-api?appName
 NODE_ENV=development
 ```
 
-El archivo `.env.example` indica que variables necesita el proyecto:
-
-```env
-PORT=
-MONGODB_URI=
-NODE_ENV=
-```
-
-El archivo `.env` no se sube a GitHub porque contiene datos sensibles.
-
-## Ejecucion
+Ejecutar el servidor:
 
 ```bash
 npm run dev
@@ -53,53 +71,95 @@ Servidor ejecutandose en el puerto 8080
 Entorno actual: development
 ```
 
+## Variables de entorno
+
+El proyecto usa `dotenv` para leer variables desde `.env`.
+
+Variables requeridas:
+
+- `PORT`: puerto donde corre la API.
+- `MONGODB_URI`: URI de conexion a MongoDB Atlas o MongoDB local.
+- `NODE_ENV`: entorno de ejecucion, por ejemplo `development`.
+
+El archivo `.env.example` queda como referencia:
+
+```env
+PORT=
+MONGODB_URI=
+NODE_ENV=
+```
+
+El archivo `.env` no debe subirse a GitHub porque puede contener credenciales reales de MongoDB.
+
+## Scripts disponibles
+
+Modo desarrollo:
+
+```bash
+npm run dev
+```
+
+Modo normal:
+
+```bash
+npm start
+```
+
 ## Arquitectura
 
-El flujo de la aplicacion es:
+El proyecto utiliza arquitectura por capas:
 
 ```text
-Router -> Controller -> Service -> Repository -> Model -> MongoDB
+Router
+  |
+  v
+Controller
+  |
+  v
+Service
+  |
+  v
+Repository
+  |
+  v
+Model
+  |
+  v
+MongoDB
 ```
 
 Responsabilidades:
 
-- Router: conecta endpoints con controllers.
-- Controller: recibe `req`, usa `res` y llama al service.
-- Service: contiene reglas y validaciones de negocio.
-- Repository: encapsula el acceso a MongoDB.
-- Model: define los esquemas de Mongoose.
-- Config: centraliza variables de entorno y conexion a base de datos.
-- Constants: centraliza valores fijos del dominio.
+- `Router`: define endpoints y los conecta con controllers.
+- `Controller`: recibe la request, llama al service y devuelve la response.
+- `Service`: contiene reglas de negocio y validaciones.
+- `Repository`: encapsula las consultas a MongoDB.
+- `Model`: define los esquemas de Mongoose.
+- `Config`: centraliza variables de entorno y conexion a base de datos.
+- `Constants`: centraliza roles, estados, categorias y puestos.
 
-## Estructura
+Esta separacion evita mezclar logica HTTP, logica de negocio y acceso a datos en un mismo archivo. Tambien facilita mantener y extender el proyecto en futuras pre-entregas.
+
+## Estructura de carpetas
 
 ```text
 src/
-  config/
-  constants/
-  controllers/
-  models/
-  repositories/
-  routes/
-  services/
-  app.js
-  server.js
+|-- config/
+|-- constants/
+|-- controllers/
+|-- models/
+|-- repositories/
+|-- routes/
+|-- services/
+|-- app.js
+`-- server.js
 ```
 
-## Entidades
+## Endpoints
 
-### Products
+Los endpoints se mantienen en ingles como convencion tecnica de API. Los datos enviados y guardados en el dominio del restaurante usan nombres en espanol.
 
-Campos principales:
-
-- `nombre`
-- `descripcion`
-- `categoria`
-- `precio`
-- `stock`
-- `estado`
-
-Endpoints:
+### Productos
 
 ```http
 GET    /api/products
@@ -111,16 +171,19 @@ PUT    /api/products/:pid
 DELETE /api/products/:pid
 ```
 
-### Users
+Body para crear producto:
 
-Campos principales:
+```json
+{
+  "nombre": "Milanesa con pure",
+  "descripcion": "Milanesa de carne con guarnicion",
+  "categoria": "PLATOS_PRINCIPALES",
+  "precio": 8500,
+  "stock": 10
+}
+```
 
-- `nombre`
-- `apellido`
-- `email`
-- `rol`
-
-Endpoints:
+### Usuarios
 
 ```http
 GET    /api/users
@@ -130,12 +193,108 @@ PUT    /api/users/:uid
 DELETE /api/users/:uid
 ```
 
-## Validacion de entorno
+Body para crear usuario:
 
-La aplicacion valida estas variables:
+```json
+{
+  "nombre": "Agustin",
+  "apellido": "Varela",
+  "email": "agustin@example.com"
+}
+```
+
+### Empleados
+
+```http
+GET    /api/employees
+GET    /api/employees/activos
+GET    /api/employees/:eid
+POST   /api/employees
+PUT    /api/employees/:eid
+DELETE /api/employees/:eid
+```
+
+Body para crear empleado:
+
+```json
+{
+  "nombre": "Laura",
+  "apellido": "Gomez",
+  "email": "laura@example.com",
+  "telefono": "1122334455",
+  "puesto": "MOZO"
+}
+```
+
+Puestos disponibles:
+
+- `MOZO`
+- `COCINERO`
+- `CAJERO`
+- `ENCARGADO`
+
+### Pedidos
+
+```http
+GET    /api/orders
+GET    /api/orders/pendientes
+GET    /api/orders/:oid
+POST   /api/orders
+PUT    /api/orders/:oid
+DELETE /api/orders/:oid
+```
+
+Body para crear pedido:
+
+```json
+{
+  "mesa": 4,
+  "empleado": "ID_DEL_EMPLEADO",
+  "productos": [
+    {
+      "producto": "ID_DEL_PRODUCTO",
+      "cantidad": 2
+    }
+  ],
+  "observaciones": "Sin sal"
+}
+```
+
+Estados disponibles:
+
+- `PENDIENTE`
+- `EN_PREPARACION`
+- `LISTO`
+- `ENTREGADO`
+- `CANCELADO`
+
+## Prueba rapida
+
+Con el servidor corriendo:
+
+```http
+GET http://localhost:8080/
+```
+
+Respuesta esperada:
+
+```json
+{
+  "status": "success",
+  "message": "Resto API funcionando correctamente"
+}
+```
+
+## Validacion de configuracion
+
+La aplicacion valida que existan:
 
 - `PORT`
 - `MONGODB_URI`
 - `NODE_ENV`
 
-Si falta una variable critica, la aplicacion no arranca y muestra un error descriptivo.
+Si falta una variable critica, la aplicacion no inicia y muestra un error descriptivo.
+
+## Autor
+
+Agustin Varela
