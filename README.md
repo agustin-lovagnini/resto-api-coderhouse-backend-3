@@ -1,26 +1,8 @@
 # Resto API
 
-API REST para la gestion de un restaurante.
+API REST para la gestion de un restaurante. Permite trabajar con usuarios, productos del menu, empleados, pedidos y datos mock para pruebas.
 
-El proyecto adapta una consigna pensada originalmente para un dominio logistico al contexto de un restaurante. En lugar de trabajar con repartidores y entregas, el sistema se orienta a usuarios, productos del menu, empleados y pedidos o comandas.
-
-## Adaptacion del dominio
-
-| Dominio logistico | Dominio restaurante |
-| --- | --- |
-| Usuario | Usuario |
-| Repartidor | Empleado |
-| Pedido | Pedido |
-| Entrega | Reserva o comanda |
-
-Entidades principales del proyecto:
-
-- `Usuarios`: usuarios del sistema.
-- `Productos`: productos o platos del menu.
-- `Empleados`: empleados del restaurante.
-- `Pedidos`: pedidos o comandas del restaurante.
-
-## Tecnologias utilizadas
+## Tecnologias
 
 - Node.js
 - Express
@@ -29,23 +11,11 @@ Entidades principales del proyecto:
 - Dotenv
 - JavaScript ES Modules
 
-## Instalacion y setup
-
-Clonar el repositorio:
+## Instalacion
 
 ```bash
-git clone URL_DEL_REPOSITORIO
-```
-
-Entrar a la carpeta del proyecto:
-
-```bash
-cd resto-api
-```
-
-Instalar dependencias:
-
-```bash
+git clone https://github.com/agustin-lovagnini/resto-api-coderhouse-backend-3.git
+cd resto-api-coderhouse-backend-3
 npm install
 ```
 
@@ -57,13 +27,13 @@ MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@CLUSTER.mongodb.net/resto-api?appName
 NODE_ENV=development
 ```
 
-Ejecutar el servidor:
+Ejecutar en desarrollo:
 
 ```bash
 npm run dev
 ```
 
-Resultado esperado:
+Si inicia bien, la consola muestra:
 
 ```text
 Conexion con MongoDB establecida correctamente
@@ -71,107 +41,47 @@ Servidor ejecutandose en el puerto 8080
 Entorno actual: development
 ```
 
-## Variables de entorno
-
-El proyecto usa `dotenv` para leer variables desde `.env`.
-
-Variables requeridas:
-
-- `PORT`: puerto donde corre la API.
-- `MONGODB_URI`: URI de conexion a MongoDB Atlas o MongoDB local.
-- `NODE_ENV`: entorno de ejecucion, por ejemplo `development`.
-
-El archivo `.env.example` queda como referencia:
-
-```env
-PORT=
-MONGODB_URI=
-NODE_ENV=
-```
-
-El archivo `.env` no debe subirse a GitHub porque puede contener credenciales reales de MongoDB.
-
-## Scripts disponibles
-
-Modo desarrollo:
+## Scripts
 
 ```bash
 npm run dev
-```
-
-Modo normal:
-
-```bash
 npm start
 ```
 
+## Variables de entorno
+
+- `PORT`: puerto donde corre la API.
+- `MONGODB_URI`: conexion a MongoDB.
+- `NODE_ENV`: entorno de ejecucion.
+
+El archivo `.env` no se sube a GitHub. Como referencia se incluye `.env.example`.
+
 ## Arquitectura
 
-El proyecto utiliza arquitectura por capas:
+El proyecto usa arquitectura por capas:
 
-```text
-Router
-  |
-  v
-Controller
-  |
-  v
-Service
-  |
-  v
-Repository
-  |
-  v
-Model
-  |
-  v
-MongoDB
-```
-
-Responsabilidades:
-
-- `Router`: define endpoints y los conecta con controllers.
-- `Controller`: recibe la request, llama al service y devuelve la response.
-- `Service`: contiene reglas de negocio y validaciones.
-- `Repository`: encapsula las consultas a MongoDB.
+- `Router`: define las rutas.
+- `Controller`: recibe la request y devuelve la response.
+- `Service`: contiene validaciones y logica de negocio.
+- `Repository`: consulta o modifica MongoDB.
 - `Model`: define los esquemas de Mongoose.
-- `Config`: centraliza variables de entorno y conexion a base de datos.
-- `Constants`: centraliza roles, estados, categorias y puestos.
 
-Esta separacion evita mezclar logica HTTP, logica de negocio y acceso a datos en un mismo archivo. Tambien facilita mantener y extender el proyecto en futuras pre-entregas.
+Esta separacion ayuda a mantener el proyecto ordenado y facilita agregar nuevas funcionalidades.
 
-## Estructura de carpetas
+## Endpoints principales
 
-```text
-src/
-|-- config/
-|-- constants/
-|-- controllers/
-|-- models/
-|-- repositories/
-|-- routes/
-|-- services/
-|-- app.js
-`-- server.js
-```
-
-## Endpoints
-
-Los endpoints se mantienen en ingles como convencion tecnica de API. Los datos enviados y guardados en el dominio del restaurante usan nombres en espanol.
-
-### Productos
+### Products
 
 ```http
 GET    /api/products
 GET    /api/products/available
-GET    /api/products/disponibles
 GET    /api/products/:pid
 POST   /api/products
 PUT    /api/products/:pid
 DELETE /api/products/:pid
 ```
 
-Body para crear producto:
+Ejemplo:
 
 ```json
 {
@@ -183,7 +93,7 @@ Body para crear producto:
 }
 ```
 
-### Usuarios
+### Users
 
 ```http
 GET    /api/users
@@ -193,7 +103,7 @@ PUT    /api/users/:uid
 DELETE /api/users/:uid
 ```
 
-Body para crear usuario:
+Ejemplo:
 
 ```json
 {
@@ -203,7 +113,7 @@ Body para crear usuario:
 }
 ```
 
-### Empleados
+### Employees
 
 ```http
 GET    /api/employees
@@ -214,7 +124,7 @@ PUT    /api/employees/:eid
 DELETE /api/employees/:eid
 ```
 
-Body para crear empleado:
+Ejemplo:
 
 ```json
 {
@@ -226,14 +136,7 @@ Body para crear empleado:
 }
 ```
 
-Puestos disponibles:
-
-- `MOZO`
-- `COCINERO`
-- `CAJERO`
-- `ENCARGADO`
-
-### Pedidos
+### Orders
 
 ```http
 GET    /api/orders
@@ -244,7 +147,7 @@ PUT    /api/orders/:oid
 DELETE /api/orders/:oid
 ```
 
-Body para crear pedido:
+Ejemplo:
 
 ```json
 {
@@ -260,41 +163,78 @@ Body para crear pedido:
 }
 ```
 
-Estados disponibles:
+## Endpoints de mocking
 
-- `PENDIENTE`
-- `EN_PREPARACION`
-- `LISTO`
-- `ENTREGADO`
-- `CANCELADO`
-
-## Prueba rapida
-
-Con el servidor corriendo:
+Los mocks generan datos falsos para probar la API.
 
 ```http
-GET http://localhost:8080/
+GET    /api/mocks/users
+GET    /api/mocks/employees
+GET    /api/mocks/orders
+POST   /api/mocks/populate
 ```
 
-Respuesta esperada:
+Los endpoints `GET` solo generan datos y no guardan en MongoDB:
+
+```http
+GET http://localhost:8080/api/mocks/users?cantidad=5
+GET http://localhost:8080/api/mocks/employees?cantidad=5
+GET http://localhost:8080/api/mocks/orders?cantidad=3
+```
+
+Datos que se pueden generar:
+
+- `users`: usuarios falsos.
+- `employees`: empleados falsos.
+- `orders`: pedidos falsos.
+
+Para insertar datos falsos en MongoDB:
+
+```http
+POST http://localhost:8080/api/mocks/populate
+```
+
+Body:
 
 ```json
 {
-  "status": "success",
-  "message": "Resto API funcionando correctamente"
+  "users": 5,
+  "employees": 5,
+  "orders": 3
 }
 ```
 
+Tambien se puede cargar solo una entidad:
+
+```json
+{
+  "users": 10
+}
+```
+
+Para guardar `orders`, primero deben existir productos y empleados activos, porque los pedidos usan referencias reales.
+
+## Probar con Postman
+
+1. Levantar el servidor con `npm run dev`.
+2. Crear una request en Postman.
+3. Elegir el metodo `GET` o `POST`.
+4. Usar una URL, por ejemplo `http://localhost:8080/api/mocks/users?cantidad=5`.
+5. Para `POST /api/mocks/populate`, ir a `Body`, elegir `raw`, formato `JSON` y escribir el body.
+6. Presionar `Send`.
+
 ## Validacion de configuracion
 
-La aplicacion valida que existan:
+La aplicacion no inicia si falta una variable critica como `PORT`, `MONGODB_URI` o `NODE_ENV`.
 
-- `PORT`
-- `MONGODB_URI`
-- `NODE_ENV`
+## Repositorio
 
-Si falta una variable critica, la aplicacion no inicia y muestra un error descriptivo.
+```text
+https://github.com/agustin-lovagnini/resto-api-coderhouse-backend-3
+```
 
-## Autor
+El proyecto no incluye `node_modules`. Las dependencias se instalan con:
 
-Agustin Varela
+```bash
+npm install
+```

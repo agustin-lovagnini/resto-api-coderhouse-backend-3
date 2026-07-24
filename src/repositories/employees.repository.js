@@ -26,6 +26,10 @@ export const employeesRepository = {
     return EmployeeModel.create(employeeData)
   },
 
+  createMany: async (employeesData) => {
+    return EmployeeModel.insertMany(employeesData)
+  },
+
   updateById: async (id, employeeData) => {
     return EmployeeModel.findByIdAndUpdate(id, employeeData, {
       new: true,

@@ -28,6 +28,10 @@ export const ordersRepository = {
     return OrderModel.create(orderData)
   },
 
+  createMany: async (ordersData) => {
+    return OrderModel.insertMany(ordersData)
+  },
+
   updateById: async (id, orderData) => {
     return populateOrder(
       OrderModel.findByIdAndUpdate(id, orderData, {
