@@ -1,51 +1,20 @@
+import { faker } from '@faker-js/faker'
 import { PUESTOS_EMPLEADO } from '../constants/index.js'
 
-const nombres = [
-  'Laura',
-  'Martin',
-  'Sofia',
-  'Camila',
-  'Nicolas',
-  'Valentina',
-  'Diego',
-  'Carolina'
-]
+const puestos = Object.values(PUESTOS_EMPLEADO) //* valores del objeto PUESTOS_EMPLEADO para guardo en un array para usar con faker.helpers.arrayElement() y elegir uno al azar.
 
-const apellidos = [
-  'Gomez',
-  'Perez',
-  'Rodriguez',
-  'Fernandez',
-  'Lopez',
-  'Martinez',
-  'Garcia',
-  'Sosa'
-]
-
-const puestos = Object.values(PUESTOS_EMPLEADO)
-
-const obtenerElementoAleatorio = (items) => {
-  const indice = Math.floor(Math.random() * items.length)
-
-  return items[indice]
-}
-
-export const generarEmpleadoMock = (indice = 1) => {
-  const nombre = obtenerElementoAleatorio(nombres)
-  const apellido = obtenerElementoAleatorio(apellidos)
-
+//! Genero un empleado con mock de datos aleatorios
+export const generarEmpleadoMock = () => {
   return {
-    nombre,
-    apellido,
-    email: `empleado.mock.${Date.now()}.${indice}@example.com`,
-    telefono: `11${Math.floor(10000000 + Math.random() * 90000000)}`,
-    puesto: obtenerElementoAleatorio(puestos),
-    activo: true
+    nombre: faker.person.firstName(),
+    apellido: faker.person.lastName(),
+    email: faker.internet.email().toLowerCase(),
+    telefono: faker.phone.number(),
+    puesto: faker.helpers.arrayElement(puestos),
+    activo: true //* todos los empleados mock generados van a estar activos.
   }
 }
 
 export const generarEmpleadosMock = (cantidad = 10) => {
-  return Array.from({ length: cantidad }, (_, index) =>
-    generarEmpleadoMock(index + 1)
-  )
+  return Array.from({ length: cantidad }, () => generarEmpleadoMock())
 }
