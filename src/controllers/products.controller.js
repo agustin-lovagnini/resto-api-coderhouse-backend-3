@@ -1,6 +1,6 @@
 import { productsService } from '../services/products.service.js'
 
-export const obtenerProductos = async (req, res) => {
+export const obtenerProductos = async (req, res, next) => {
     try {
         const productos = await productsService.obtenerProductos()
 
@@ -9,14 +9,11 @@ export const obtenerProductos = async (req, res) => {
             payload: productos
         })
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const obtenerProductosDisponibles = async (req, res) => {
+export const obtenerProductosDisponibles = async (req, res, next) => {
     try {
         const productos = await productsService.obtenerProductosDisponibles()
 
@@ -25,14 +22,11 @@ export const obtenerProductosDisponibles = async (req, res) => {
             payload: productos
         })
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const obtenerProductoPorId = async (req, res) => {
+export const obtenerProductoPorId = async (req, res, next) => {
     try {
         const { pid } = req.params
 
@@ -43,14 +37,11 @@ export const obtenerProductoPorId = async (req, res) => {
             payload: producto
         })
     } catch (error) {
-        res.status(404).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const crearProducto = async (req, res) => {
+export const crearProducto = async (req, res, next) => {
     try {
         const producto = await productsService.crearProducto(req.body)
 
@@ -59,14 +50,11 @@ export const crearProducto = async (req, res) => {
             payload: producto
         })
     } catch (error) {
-        res.status(400).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const actualizarProducto = async (req, res) => {
+export const actualizarProducto = async (req, res, next) => {
     try {
         const { pid } = req.params
 
@@ -80,14 +68,11 @@ export const actualizarProducto = async (req, res) => {
             payload: producto
         })
     } catch (error) {
-        res.status(400).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const eliminarProducto = async (req, res) => {
+export const eliminarProducto = async (req, res, next) => {
     try {
         const { pid } = req.params
 
@@ -98,9 +83,6 @@ export const eliminarProducto = async (req, res) => {
             payload: producto
         })
     } catch (error) {
-        res.status(404).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }

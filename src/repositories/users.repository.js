@@ -26,6 +26,11 @@ export const usersRepository = {
     return UserModel.create(userData)
   },
 
+  //! para crear varios usuarios a la vez
+  createMany: async (usersData) => {
+  return UserModel.insertMany(usersData)
+},
+
   updateById: async (id, userData) => {
     return UserModel.findByIdAndUpdate(id, userData, {
       new: true,

@@ -1,6 +1,6 @@
 import { usersService } from '../services/users.service.js'
 
-export const obtenerUsuarios = async (req, res) => {
+export const obtenerUsuarios = async (req, res, next) => {
   try {
     const usuarios = await usersService.obtenerUsuarios()
 
@@ -9,14 +9,11 @@ export const obtenerUsuarios = async (req, res) => {
       payload: usuarios
     })
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const obtenerUsuarioPorId = async (req, res) => {
+export const obtenerUsuarioPorId = async (req, res, next) => {
   try {
     const { uid } = req.params
 
@@ -27,14 +24,11 @@ export const obtenerUsuarioPorId = async (req, res) => {
       payload: usuario
     })
   } catch (error) {
-    res.status(404).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const crearUsuario = async (req, res) => {
+export const crearUsuario = async (req, res, next) => {
   try {
     const usuario = await usersService.crearUsuario(req.body)
 
@@ -43,14 +37,11 @@ export const crearUsuario = async (req, res) => {
       payload: usuario
     })
   } catch (error) {
-    res.status(400).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const actualizarUsuario = async (req, res) => {
+export const actualizarUsuario = async (req, res, next) => {
   try {
     const { uid } = req.params
 
@@ -61,14 +52,11 @@ export const actualizarUsuario = async (req, res) => {
       payload: usuario
     })
   } catch (error) {
-    res.status(400).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const eliminarUsuario = async (req, res) => {
+export const eliminarUsuario = async (req, res, next) => {
   try {
     const { uid } = req.params
 
@@ -79,9 +67,6 @@ export const eliminarUsuario = async (req, res) => {
       payload: usuario
     })
   } catch (error) {
-    res.status(404).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }

@@ -1,20 +1,32 @@
-// Roles de usuario
 export const ROLES_USUARIO = Object.freeze({
   ADMIN: 'ADMIN',
   USUARIO: 'USUARIO'
 })
 
-// Estados de los productos
 export const ESTADOS_PRODUCTO = Object.freeze({
   DISPONIBLE: 'DISPONIBLE',
   SIN_STOCK: 'SIN_STOCK',
   DISCONTINUADO: 'DISCONTINUADO'
 })
 
-// Categorias de productos
 export const CATEGORIAS_PRODUCTO = Object.freeze({
   ENTRADAS: 'ENTRADAS',
   PLATOS_PRINCIPALES: 'PLATOS_PRINCIPALES',
   POSTRES: 'POSTRES',
   BEBIDAS: 'BEBIDAS'
+})
+
+export const PUESTOS_EMPLEADO = Object.freeze({
+  MOZO: 'MOZO',
+  COCINERO: 'COCINERO',
+  CAJERO: 'CAJERO',
+  ENCARGADO: 'ENCARGADO'
+})
+
+export const ESTADOS_PEDIDO = Object.freeze({
+  PENDIENTE: 'PENDIENTE',
+  EN_PREPARACION: 'EN_PREPARACION',
+  LISTO: 'LISTO',
+  ENTREGADO: 'ENTREGADO',
+  CANCELADO: 'CANCELADO'
 })
