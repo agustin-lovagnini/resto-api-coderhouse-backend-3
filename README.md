@@ -68,6 +68,40 @@ El proyecto usa arquitectura por capas:
 
 Esta separacion ayuda a mantener el proyecto ordenado y facilita agregar nuevas funcionalidades.
 
+## Manejo centralizado de errores
+
+La API usa una capa centralizada para manejar errores de forma uniforme.
+
+Flujo:
+
+```text
+Service -> AppError -> Controller next(error) -> errorHandler
+```
+
+- Los `Services` detectan errores de negocio y lanzan errores personalizados.
+- Los `Controllers` mantienen las respuestas exitosas y derivan errores con `next(error)`.
+- El middleware `errorHandler` responde todos los errores con el mismo formato.
+- El middleware `notFoundHandler` maneja rutas inexistentes.
+
+Formato de error:
+
+```json
+{
+  "status": "error",
+  "code": "VALIDATION_ERROR",
+  "message": "El email del usuario es obligatorio"
+}
+```
+
+Tabla de errores:
+
+| Codigo | Status HTTP | Uso |
+| --- | --- | --- |
+| `VALIDATION_ERROR` | 400 | Datos obligatorios faltantes o valores invalidos |
+| `NOT_FOUND_ERROR` | 404 | Recurso inexistente |
+| `DUPLICATE_ERROR` | 409 | Recurso duplicado |
+| `INTERNAL_SERVER_ERROR` | 500 | Error inesperado del servidor |
+
 ## Endpoints principales
 
 ### Products
@@ -165,7 +199,7 @@ Ejemplo:
 
 ## Endpoints de mocking
 
-Los mocks generan datos falsos para probar la API.
+Los mocks generan datos falsos para probar la API usando `@faker-js/faker`.
 
 ```http
 GET    /api/mocks/users
@@ -174,13 +208,21 @@ GET    /api/mocks/orders
 POST   /api/mocks/populate
 ```
 
-Los endpoints `GET` solo generan datos y no guardan en MongoDB:
+Los endpoints `GET` solo generan datos en memoria y no guardan en MongoDB:
 
 ```http
 GET http://localhost:8080/api/mocks/users?cantidad=5
 GET http://localhost:8080/api/mocks/employees?cantidad=5
 GET http://localhost:8080/api/mocks/orders?cantidad=3
 ```
+
+La query `cantidad` es obligatoria y debe ser:
+
+- numerica;
+- finita;
+- entera;
+- mayor a 0;
+- menor o igual a 100.
 
 Datos que se pueden generar:
 
@@ -213,6 +255,22 @@ Tambien se puede cargar solo una entidad:
 ```
 
 Para guardar `orders`, primero deben existir productos y empleados activos, porque los pedidos usan referencias reales.
+
+Ejemplo de error de validacion:
+
+```http
+GET http://localhost:8080/api/mocks/users?cantidad=abc
+```
+
+Respuesta esperada:
+
+```json
+{
+  "status": "error",
+  "code": "VALIDATION_ERROR",
+  "message": "El campo cantidad debe ser numerico"
+}
+```
 
 ## Probar con Postman
 

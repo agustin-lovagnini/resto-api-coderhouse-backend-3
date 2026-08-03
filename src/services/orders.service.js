@@ -1,32 +1,36 @@
 import { ESTADOS_PEDIDO, ESTADOS_PRODUCTO } from '../constants/index.js'
+import {
+  createNotFoundError,
+  createValidationError
+} from '../errors/errorFactory.js'
 import { employeesRepository } from '../repositories/employees.repository.js'
 import { ordersRepository } from '../repositories/orders.repository.js'
 import { productsRepository } from '../repositories/products.repository.js'
 
 const prepararProductosDelPedido = async (productos = []) => {
   if (!Array.isArray(productos) || productos.length === 0) {
-    throw new Error('El pedido debe tener al menos un producto')
+    throw createValidationError('El pedido debe tener al menos un producto')
   }
 
   const productosPreparados = []
 
   for (const item of productos) {
     if (!item.producto) {
-      throw new Error('Cada item del pedido debe incluir un producto')
+      throw createValidationError('Cada item del pedido debe incluir un producto')
     }
 
     if (!item.cantidad || item.cantidad < 1) {
-      throw new Error('La cantidad de cada producto debe ser mayor a 0')
+      throw createValidationError('La cantidad de cada producto debe ser mayor a 0')
     }
 
     const producto = await productsRepository.getById(item.producto)
 
     if (!producto) {
-      throw new Error('Uno de los productos del pedido no existe')
+      throw createNotFoundError('Uno de los productos del pedido no existe')
     }
 
     if (producto.estado !== ESTADOS_PRODUCTO.DISPONIBLE) {
-      throw new Error(`El producto ${producto.nombre} no esta disponible`)
+      throw createValidationError(`El producto ${producto.nombre} no esta disponible`)
     }
 
     const subtotal = producto.precio * item.cantidad
@@ -61,7 +65,7 @@ export const ordersService = {
     const pedido = await ordersRepository.getById(id)
 
     if (!pedido) {
-      throw new Error('Pedido no encontrado')
+      throw createNotFoundError('Pedido no encontrado')
     }
 
     return pedido
@@ -69,21 +73,21 @@ export const ordersService = {
 
   crearPedido: async (orderData) => {
     if (!orderData.mesa || orderData.mesa < 1) {
-      throw new Error('La mesa del pedido es obligatoria y debe ser valida')
+      throw createValidationError('La mesa del pedido es obligatoria y debe ser valida')
     }
 
     if (!orderData.empleado) {
-      throw new Error('El empleado del pedido es obligatorio')
+      throw createValidationError('El empleado del pedido es obligatorio')
     }
 
     const empleado = await employeesRepository.getById(orderData.empleado)
 
     if (!empleado) {
-      throw new Error('El empleado asignado al pedido no existe')
+      throw createNotFoundError('El empleado asignado al pedido no existe')
     }
 
     if (!empleado.activo) {
-      throw new Error('El empleado asignado al pedido no esta activo')
+      throw createValidationError('El empleado asignado al pedido no esta activo')
     }
 
     const productos = await prepararProductosDelPedido(orderData.productos)
@@ -99,7 +103,7 @@ export const ordersService = {
     }
 
     if (!Object.values(ESTADOS_PEDIDO).includes(nuevoPedido.estado)) {
-      throw new Error('El estado del pedido no es valido')
+      throw createValidationError('El estado del pedido no es valido')
     }
 
     return ordersRepository.create(nuevoPedido)
@@ -110,7 +114,7 @@ export const ordersService = {
       orderData.estado &&
       !Object.values(ESTADOS_PEDIDO).includes(orderData.estado)
     ) {
-      throw new Error('El estado del pedido no es valido')
+      throw createValidationError('El estado del pedido no es valido')
     }
 
     const datosActualizados = { ...orderData }
@@ -119,11 +123,11 @@ export const ordersService = {
       const empleado = await employeesRepository.getById(orderData.empleado)
 
       if (!empleado) {
-        throw new Error('El empleado asignado al pedido no existe')
+        throw createNotFoundError('El empleado asignado al pedido no existe')
       }
 
       if (!empleado.activo) {
-        throw new Error('El empleado asignado al pedido no esta activo')
+        throw createValidationError('El empleado asignado al pedido no esta activo')
       }
     }
 
@@ -140,7 +144,7 @@ export const ordersService = {
     )
 
     if (!pedidoActualizado) {
-      throw new Error('Pedido no encontrado')
+      throw createNotFoundError('Pedido no encontrado')
     }
 
     return pedidoActualizado
@@ -150,7 +154,7 @@ export const ordersService = {
     const pedidoEliminado = await ordersRepository.deleteById(id)
 
     if (!pedidoEliminado) {
-      throw new Error('Pedido no encontrado')
+      throw createNotFoundError('Pedido no encontrado')
     }
 
     return pedidoEliminado

@@ -1,6 +1,6 @@
 import { ordersService } from '../services/orders.service.js'
 
-export const obtenerPedidos = async (req, res) => {
+export const obtenerPedidos = async (req, res, next) => {
   try {
     const pedidos = await ordersService.obtenerPedidos()
 
@@ -9,14 +9,11 @@ export const obtenerPedidos = async (req, res) => {
       payload: pedidos
     })
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const obtenerPedidosPendientes = async (req, res) => {
+export const obtenerPedidosPendientes = async (req, res, next) => {
   try {
     const pedidos = await ordersService.obtenerPedidosPendientes()
 
@@ -25,14 +22,11 @@ export const obtenerPedidosPendientes = async (req, res) => {
       payload: pedidos
     })
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const obtenerPedidoPorId = async (req, res) => {
+export const obtenerPedidoPorId = async (req, res, next) => {
   try {
     const { oid } = req.params
 
@@ -43,14 +37,11 @@ export const obtenerPedidoPorId = async (req, res) => {
       payload: pedido
     })
   } catch (error) {
-    res.status(404).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const crearPedido = async (req, res) => {
+export const crearPedido = async (req, res, next) => {
   try {
     const pedido = await ordersService.crearPedido(req.body)
 
@@ -59,14 +50,11 @@ export const crearPedido = async (req, res) => {
       payload: pedido
     })
   } catch (error) {
-    res.status(400).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const actualizarPedido = async (req, res) => {
+export const actualizarPedido = async (req, res, next) => {
   try {
     const { oid } = req.params
 
@@ -77,14 +65,11 @@ export const actualizarPedido = async (req, res) => {
       payload: pedido
     })
   } catch (error) {
-    res.status(400).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const eliminarPedido = async (req, res) => {
+export const eliminarPedido = async (req, res, next) => {
   try {
     const { oid } = req.params
 
@@ -95,9 +80,6 @@ export const eliminarPedido = async (req, res) => {
       payload: pedido
     })
   } catch (error) {
-    res.status(404).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }

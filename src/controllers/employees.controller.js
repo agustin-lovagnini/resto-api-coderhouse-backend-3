@@ -1,6 +1,6 @@
 import { employeesService } from '../services/employees.service.js'
 
-export const obtenerEmpleados = async (req, res) => {
+export const obtenerEmpleados = async (req, res, next) => {
   try {
     const empleados = await employeesService.obtenerEmpleados()
 
@@ -9,14 +9,11 @@ export const obtenerEmpleados = async (req, res) => {
       payload: empleados
     })
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const obtenerEmpleadosActivos = async (req, res) => {
+export const obtenerEmpleadosActivos = async (req, res, next) => {
   try {
     const empleados = await employeesService.obtenerEmpleadosActivos()
 
@@ -25,14 +22,11 @@ export const obtenerEmpleadosActivos = async (req, res) => {
       payload: empleados
     })
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const obtenerEmpleadoPorId = async (req, res) => {
+export const obtenerEmpleadoPorId = async (req, res, next) => {
   try {
     const { eid } = req.params
 
@@ -43,14 +37,11 @@ export const obtenerEmpleadoPorId = async (req, res) => {
       payload: empleado
     })
   } catch (error) {
-    res.status(404).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const crearEmpleado = async (req, res) => {
+export const crearEmpleado = async (req, res, next) => {
   try {
     const empleado = await employeesService.crearEmpleado(req.body)
 
@@ -59,14 +50,11 @@ export const crearEmpleado = async (req, res) => {
       payload: empleado
     })
   } catch (error) {
-    res.status(400).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const actualizarEmpleado = async (req, res) => {
+export const actualizarEmpleado = async (req, res, next) => {
   try {
     const { eid } = req.params
 
@@ -77,14 +65,11 @@ export const actualizarEmpleado = async (req, res) => {
       payload: empleado
     })
   } catch (error) {
-    res.status(400).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }
 
-export const eliminarEmpleado = async (req, res) => {
+export const eliminarEmpleado = async (req, res, next) => {
   try {
     const { eid } = req.params
 
@@ -95,9 +80,6 @@ export const eliminarEmpleado = async (req, res) => {
       payload: empleado
     })
   } catch (error) {
-    res.status(404).json({
-      status: 'error',
-      message: error.message
-    })
+    next(error)
   }
 }

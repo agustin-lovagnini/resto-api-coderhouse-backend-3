@@ -1,4 +1,9 @@
-import { ESTADOS_PRODUCTO } from '../constants/index.js'
+import { CATEGORIAS_PRODUCTO, ESTADOS_PRODUCTO } from '../constants/index.js'
+import {
+    createDuplicateError,
+    createNotFoundError,
+    createValidationError
+} from '../errors/errorFactory.js'
 import { productsRepository } from '../repositories/products.repository.js'
 
 const calcularEstadoProducto = (stock) => {
@@ -23,7 +28,7 @@ export const productsService = {
         const producto = await productsRepository.getById(id)
 
         if (!producto) {
-            throw new Error('Producto no encontrado')
+            throw createNotFoundError('Producto no encontrado')
         }
 
         return producto
@@ -31,15 +36,29 @@ export const productsService = {
 
     crearProducto: async (productData) => {
         if (!productData.nombre) {
-            throw new Error('El nombre del producto es obligatorio')
+            throw createValidationError('El nombre del producto es obligatorio')
         }
 
         if (productData.precio === undefined || productData.precio < 0) {
-            throw new Error('El precio del producto debe ser mayor o igual a 0')
+            throw createValidationError('El precio del producto debe ser mayor o igual a 0')
         }
 
         if (productData.stock === undefined || productData.stock < 0) {
-            throw new Error('El stock del producto debe ser mayor o igual a 0')
+            throw createValidationError('El stock del producto debe ser mayor o igual a 0')
+        }
+
+        if (
+            !productData.categoria ||
+            !Object.values(CATEGORIAS_PRODUCTO).includes(productData.categoria)
+        ) {
+            throw createValidationError('La categoria del producto no es valida')
+        }
+
+        if (
+            productData.estado &&
+            !Object.values(ESTADOS_PRODUCTO).includes(productData.estado)
+        ) {
+            throw createValidationError('El estado del producto no es valido')
         }
 
         const productoExistente = await productsRepository.getByNombre(
@@ -47,7 +66,7 @@ export const productsService = {
         )
 
         if (productoExistente) {
-            throw new Error('Ya existe un producto con ese nombre')
+            throw createDuplicateError('Ya existe un producto con ese nombre')
         }
 
         const estado =
@@ -65,18 +84,35 @@ export const productsService = {
 
     actualizarProducto: async (id, productData) => {
         if (productData.precio !== undefined && productData.precio < 0) {
-            throw new Error('El precio del producto debe ser mayor o igual a 0')
+            throw createValidationError('El precio del producto debe ser mayor o igual a 0')
         }
 
         if (productData.stock !== undefined && productData.stock < 0) {
-            throw new Error('El stock del producto debe ser mayor o igual a 0')
+            throw createValidationError('El stock del producto debe ser mayor o igual a 0')
         }
 
         if (
             productData.estado &&
             !Object.values(ESTADOS_PRODUCTO).includes(productData.estado)
         ) {
-            throw new Error('El estado del producto no es válido')
+            throw createValidationError('El estado del producto no es valido')
+        }
+
+        if (
+            productData.categoria &&
+            !Object.values(CATEGORIAS_PRODUCTO).includes(productData.categoria)
+        ) {
+            throw createValidationError('La categoria del producto no es valida')
+        }
+
+        if (productData.nombre) {
+            const productoExistente = await productsRepository.getByNombre(
+                productData.nombre
+            )
+
+            if (productoExistente && productoExistente._id.toString() !== id) {
+                throw createDuplicateError('Ya existe un producto con ese nombre')
+            }
         }
 
         if (
@@ -92,7 +128,7 @@ export const productsService = {
         )
 
         if (!productoActualizado) {
-            throw new Error('Producto no encontrado')
+            throw createNotFoundError('Producto no encontrado')
         }
 
         return productoActualizado
@@ -102,7 +138,7 @@ export const productsService = {
         const productoEliminado = await productsRepository.deleteById(id)
 
         if (!productoEliminado) {
-            throw new Error('Producto no encontrado')
+            throw createNotFoundError('Producto no encontrado')
         }
 
         return productoEliminado

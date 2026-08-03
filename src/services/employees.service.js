@@ -1,4 +1,9 @@
 import { PUESTOS_EMPLEADO } from '../constants/index.js'
+import {
+  createDuplicateError,
+  createNotFoundError,
+  createValidationError
+} from '../errors/errorFactory.js'
 import { employeesRepository } from '../repositories/employees.repository.js'
 
 export const employeesService = {
@@ -14,7 +19,7 @@ export const employeesService = {
     const empleado = await employeesRepository.getById(id)
 
     if (!empleado) {
-      throw new Error('Empleado no encontrado')
+      throw createNotFoundError('Empleado no encontrado')
     }
 
     return empleado
@@ -22,22 +27,22 @@ export const employeesService = {
 
   crearEmpleado: async (employeeData) => {
     if (!employeeData.nombre) {
-      throw new Error('El nombre del empleado es obligatorio')
+      throw createValidationError('El nombre del empleado es obligatorio')
     }
 
     if (!employeeData.apellido) {
-      throw new Error('El apellido del empleado es obligatorio')
+      throw createValidationError('El apellido del empleado es obligatorio')
     }
 
     if (!employeeData.email) {
-      throw new Error('El email del empleado es obligatorio')
+      throw createValidationError('El email del empleado es obligatorio')
     }
 
     if (
       !employeeData.puesto ||
       !Object.values(PUESTOS_EMPLEADO).includes(employeeData.puesto)
     ) {
-      throw new Error('El puesto del empleado no es valido')
+      throw createValidationError('El puesto del empleado no es valido')
     }
 
     const empleadoExistente = await employeesRepository.getByEmail(
@@ -45,7 +50,7 @@ export const employeesService = {
     )
 
     if (empleadoExistente) {
-      throw new Error('Ya existe un empleado con ese email')
+      throw createDuplicateError('Ya existe un empleado con ese email')
     }
 
     return employeesRepository.create(employeeData)
@@ -56,7 +61,7 @@ export const employeesService = {
       employeeData.puesto &&
       !Object.values(PUESTOS_EMPLEADO).includes(employeeData.puesto)
     ) {
-      throw new Error('El puesto del empleado no es valido')
+      throw createValidationError('El puesto del empleado no es valido')
     }
 
     if (employeeData.email) {
@@ -65,7 +70,7 @@ export const employeesService = {
       )
 
       if (empleadoExistente && empleadoExistente._id.toString() !== id) {
-        throw new Error('Ya existe un empleado con ese email')
+        throw createDuplicateError('Ya existe un empleado con ese email')
       }
     }
 
@@ -75,7 +80,7 @@ export const employeesService = {
     )
 
     if (!empleadoActualizado) {
-      throw new Error('Empleado no encontrado')
+      throw createNotFoundError('Empleado no encontrado')
     }
 
     return empleadoActualizado
@@ -85,7 +90,7 @@ export const employeesService = {
     const empleadoEliminado = await employeesRepository.deleteById(id)
 
     if (!empleadoEliminado) {
-      throw new Error('Empleado no encontrado')
+      throw createNotFoundError('Empleado no encontrado')
     }
 
     return empleadoEliminado

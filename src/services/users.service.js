@@ -1,4 +1,9 @@
 import { ROLES_USUARIO } from '../constants/index.js'
+import {
+  createDuplicateError,
+  createNotFoundError,
+  createValidationError
+} from '../errors/errorFactory.js'
 import { usersRepository } from '../repositories/users.repository.js'
 
 export const usersService = {
@@ -10,7 +15,7 @@ export const usersService = {
     const usuario = await usersRepository.getById(id)
 
     if (!usuario) {
-      throw new Error('Usuario no encontrado')
+      throw createNotFoundError('Usuario no encontrado')
     }
 
     return usuario
@@ -18,28 +23,28 @@ export const usersService = {
 
   crearUsuario: async (userData) => {
     if (!userData.nombre) {
-      throw new Error('El nombre del usuario es obligatorio')
+      throw createValidationError('El nombre del usuario es obligatorio')
     }
 
     if (!userData.apellido) {
-      throw new Error('El apellido del usuario es obligatorio')
+      throw createValidationError('El apellido del usuario es obligatorio')
     }
 
     if (!userData.email) {
-      throw new Error('El email del usuario es obligatorio')
+      throw createValidationError('El email del usuario es obligatorio')
     }
 
     if (
       userData.rol &&
       !Object.values(ROLES_USUARIO).includes(userData.rol)
     ) {
-      throw new Error('El rol del usuario no es válido')
+      throw createValidationError('El rol del usuario no es valido')
     }
 
     const usuarioExistente = await usersRepository.getByEmail(userData.email)
 
     if (usuarioExistente) {
-      throw new Error('Ya existe un usuario con ese email')
+      throw createDuplicateError('Ya existe un usuario con ese email')
     }
 
     const nuevoUsuario = {
@@ -55,21 +60,21 @@ export const usersService = {
       userData.rol &&
       !Object.values(ROLES_USUARIO).includes(userData.rol)
     ) {
-      throw new Error('El rol del usuario no es válido')
+      throw createValidationError('El rol del usuario no es valido')
     }
 
     if (userData.email) {
       const usuarioExistente = await usersRepository.getByEmail(userData.email)
 
       if (usuarioExistente && usuarioExistente._id.toString() !== id) {
-        throw new Error('Ya existe un usuario con ese email')
+        throw createDuplicateError('Ya existe un usuario con ese email')
       }
     }
 
     const usuarioActualizado = await usersRepository.updateById(id, userData)
 
     if (!usuarioActualizado) {
-      throw new Error('Usuario no encontrado')
+      throw createNotFoundError('Usuario no encontrado')
     }
 
     return usuarioActualizado
@@ -79,7 +84,7 @@ export const usersService = {
     const usuarioEliminado = await usersRepository.deleteById(id)
 
     if (!usuarioEliminado) {
-      throw new Error('Usuario no encontrado')
+      throw createNotFoundError('Usuario no encontrado')
     }
 
     return usuarioEliminado

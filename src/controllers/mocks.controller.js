@@ -1,6 +1,6 @@
 import { mocksService } from '../services/mocks.service.js'
 
-export const responderUsuariosMock = async (req, res) => {
+export const responderUsuariosMock = async (req, res, next) => {
     try {
         const { cantidad } = req.query
 
@@ -11,14 +11,11 @@ export const responderUsuariosMock = async (req, res) => {
             payload: usuarios
         })
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const responderEmpleadosMock = async (req, res) => {
+export const responderEmpleadosMock = async (req, res, next) => {
     try {
         const { cantidad } = req.query
 
@@ -29,14 +26,11 @@ export const responderEmpleadosMock = async (req, res) => {
             payload: empleados
         })
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const responderPedidosMock = async (req, res) => {
+export const responderPedidosMock = async (req, res, next) => {
     try {
         const { cantidad } = req.query
 
@@ -47,14 +41,11 @@ export const responderPedidosMock = async (req, res) => {
             payload: pedidos
         })
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }
 
-export const responderPopulateMocks = async (req, res) => {
+export const responderPopulateMocks = async (req, res, next) => {
     try {
         const { users, employees, orders } = req.body
 
@@ -69,9 +60,6 @@ export const responderPopulateMocks = async (req, res) => {
             payload: resultado
         })
     } catch (error) {
-        res.status(400).json({
-            status: 'error',
-            message: error.message
-        })
+        next(error)
     }
 }

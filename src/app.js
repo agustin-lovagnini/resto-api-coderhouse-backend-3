@@ -4,6 +4,7 @@ import mocksRouter from './routes/mocks.routes.js'
 import ordersRouter from './routes/orders.routes.js'
 import productsRouter from './routes/products.routes.js'
 import usersRouter from './routes/users.routes.js'
+import { errorHandler, notFoundHandler } from './middlewares/index.js'
 
 const app = express()
 
@@ -22,11 +23,7 @@ app.use('/api/employees', employeesRouter)
 app.use('/api/orders', ordersRouter)
 app.use('/api/mocks', mocksRouter)
 
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: 'Ruta no encontrada'
-  })
-})
+app.use(notFoundHandler)
+app.use(errorHandler)
 
 export default app
