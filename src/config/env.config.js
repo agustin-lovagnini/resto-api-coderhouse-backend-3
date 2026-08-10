@@ -5,7 +5,7 @@ dotenv.config()
 //? validacion que las variables de entorno necesarias estén definidas
 const requiredVariables = ['PORT', 'MONGODB_URI', 'NODE_ENV']
 
-//? validacion que las variables de entorno necesarias estén definidas
+//? busca las validaciones que las variables de entorno necesarias estén definidas
 requiredVariables.forEach((variable) => {
     if (!process.env[variable]) {
         throw new Error(
@@ -14,6 +14,7 @@ requiredVariables.forEach((variable) => {
     }
 })
 
+//? una vez corroborado, exportamos las variables de entorno necesarias
 export const config = {
     port: Number(process.env.PORT),
     mongoUri: process.env.MONGODB_URI,

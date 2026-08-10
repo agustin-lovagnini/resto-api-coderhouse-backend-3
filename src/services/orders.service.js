@@ -3,6 +3,7 @@ import {
   createNotFoundError,
   createValidationError
 } from '../errors/errorFactory.js'
+import { logger } from '../config/logger.config.js'
 import { employeesRepository } from '../repositories/employees.repository.js'
 import { ordersRepository } from '../repositories/orders.repository.js'
 import { productsRepository } from '../repositories/products.repository.js'
@@ -65,6 +66,10 @@ export const ordersService = {
     const pedido = await ordersRepository.getById(id)
 
     if (!pedido) {
+      logger.warning('Pedido no encontrado', {
+        pedidoId: id
+      })
+
       throw createNotFoundError('Pedido no encontrado')
     }
 
@@ -106,7 +111,16 @@ export const ordersService = {
       throw createValidationError('El estado del pedido no es valido')
     }
 
-    return ordersRepository.create(nuevoPedido)
+    const pedidoCreado = await ordersRepository.create(nuevoPedido)
+
+    logger.info('Pedido creado correctamente', {
+      pedidoId: pedidoCreado._id,
+      mesa: pedidoCreado.mesa,
+      total: pedidoCreado.total,
+      estado: pedidoCreado.estado
+    })
+
+    return pedidoCreado
   },
 
   actualizarPedido: async (id, orderData) => {
@@ -144,8 +158,18 @@ export const ordersService = {
     )
 
     if (!pedidoActualizado) {
+      logger.warning('Pedido no encontrado al actualizar', {
+        pedidoId: id
+      })
+
       throw createNotFoundError('Pedido no encontrado')
     }
+
+    logger.info('Pedido actualizado correctamente', {
+      pedidoId: id,
+      estado: pedidoActualizado.estado,
+      total: pedidoActualizado.total
+    })
 
     return pedidoActualizado
   },
@@ -154,8 +178,16 @@ export const ordersService = {
     const pedidoEliminado = await ordersRepository.deleteById(id)
 
     if (!pedidoEliminado) {
+      logger.warning('Pedido no encontrado al eliminar', {
+        pedidoId: id
+      })
+
       throw createNotFoundError('Pedido no encontrado')
     }
+
+    logger.info('Pedido eliminado correctamente', {
+      pedidoId: id
+    })
 
     return pedidoEliminado
   }
