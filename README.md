@@ -9,6 +9,8 @@ API REST para la gestion de un restaurante. Permite trabajar con usuarios, produ
 - MongoDB
 - Mongoose
 - Dotenv
+- Winston
+- Winston Daily Rotate File
 - JavaScript ES Modules
 
 ## Instalacion
@@ -36,9 +38,9 @@ npm run dev
 Si inicia bien, la consola muestra:
 
 ```text
-Conexion con MongoDB establecida correctamente
-Servidor ejecutandose en el puerto 8080
-Entorno actual: development
+2026-08-10 12:00:00 [info] Conexion con MongoDB establecida correctamente
+2026-08-10 12:00:00 [info] Servidor ejecutandose en el puerto 8080
+2026-08-10 12:00:00 [info] Entorno actual: development
 ```
 
 ## Scripts
@@ -101,6 +103,79 @@ Tabla de errores:
 | `NOT_FOUND_ERROR` | 404 | Recurso inexistente |
 | `DUPLICATE_ERROR` | 409 | Recurso duplicado |
 | `INTERNAL_SERVER_ERROR` | 500 | Error inesperado del servidor |
+
+## Logging y monitoreo basico
+
+La API usa Winston como logger centralizado. Los logs incluyen timestamp, nivel y mensaje.
+
+Niveles configurados:
+
+| Nivel | Uso |
+| --- | --- |
+| `fatal` | Fallas criticas, por ejemplo error al conectar MongoDB |
+| `error` | Errores inesperados o fallas de insercion |
+| `warning` | Errores controlados, validaciones o rutas inexistentes |
+| `info` | Eventos importantes, como servidor iniciado o mocks generados |
+| `http` | Metodo, URL y status final de cada request |
+| `debug` | Informacion de desarrollo |
+
+Ejemplo:
+
+```text
+2026-08-10 12:04:19 [info] Servidor ejecutandose en el puerto 8080
+```
+
+El logger esta configurado en:
+
+```text
+src/config/logger.config.js
+```
+
+Registra principalmente:
+
+- inicio del servidor;
+- conexion a MongoDB;
+- rutas inexistentes;
+- errores controlados e inesperados;
+- mocks generados o insertados;
+- pedidos creados, actualizados o eliminados;
+- requests HTTP.
+
+Los errores importantes se guardan en:
+
+```text
+logs/
+```
+
+Formato de archivo:
+
+```text
+logs/error-YYYY-MM-DD.log
+```
+
+Rotacion configurada:
+
+- crear archivos por fecha;
+- maximo 5 MB por archivo;
+- conservar logs por 14 dias;
+- guardar en archivo solo niveles `error` y `fatal`.
+
+La carpeta `logs/` esta en `.gitignore`, por lo tanto no se sube al repositorio.
+
+Endpoint de prueba:
+
+```http
+GET /api/logs/test
+```
+
+Respuesta esperada:
+
+```json
+{
+  "status": "success",
+  "message": "Logs de prueba generados correctamente"
+}
+```
 
 ## Endpoints principales
 
@@ -208,6 +283,12 @@ GET    /api/mocks/orders
 POST   /api/mocks/populate
 ```
 
+### Logs
+
+```http
+GET    /api/logs/test
+```
+
 Los endpoints `GET` solo generan datos en memoria y no guardan en MongoDB:
 
 ```http
@@ -279,7 +360,8 @@ Respuesta esperada:
 3. Elegir el metodo `GET` o `POST`.
 4. Usar una URL, por ejemplo `http://localhost:8080/api/mocks/users?cantidad=5`.
 5. Para `POST /api/mocks/populate`, ir a `Body`, elegir `raw`, formato `JSON` y escribir el body.
-6. Presionar `Send`.
+6. Para probar el logger, usar `GET http://localhost:8080/api/logs/test`.
+7. Presionar `Send`.
 
 ## Validacion de configuracion
 
@@ -291,7 +373,7 @@ La aplicacion no inicia si falta una variable critica como `PORT`, `MONGODB_URI`
 https://github.com/agustin-lovagnini/resto-api-coderhouse-backend-3
 ```
 
-El proyecto no incluye `node_modules`. Las dependencias se instalan con:
+El proyecto no incluye `node_modules`, `.env` ni archivos generados dentro de `logs/`. Las dependencias se instalan con:
 
 ```bash
 npm install
