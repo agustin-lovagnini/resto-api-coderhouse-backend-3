@@ -11,6 +11,7 @@ API REST para la gestion de un restaurante. Permite trabajar con usuarios, produ
 - Dotenv
 - Winston
 - Winston Daily Rotate File
+- Swagger / OpenAPI
 - JavaScript ES Modules
 
 ## Instalacion
@@ -49,6 +50,60 @@ Si inicia bien, la consola muestra:
 npm run dev
 npm start
 ```
+
+## Documentacion Swagger
+
+La API expone documentacion interactiva con Swagger UI en:
+
+```text
+http://localhost:8080/api/docs
+```
+
+Para verla, primero levantar el servidor:
+
+```bash
+npm run dev
+```
+
+Swagger permite consultar y probar los endpoints desde el navegador usando el boton `Try it out` y luego `Execute`.
+
+Modulos documentados:
+
+- `Users`: gestion de usuarios.
+- `Products`: gestion de productos del menu.
+- `Employees`: gestion de empleados del restaurante.
+- `Orders`: gestion de pedidos.
+- `Mocks`: generacion de datos falsos e insercion de datos de prueba.
+- `Logger`: endpoint tecnico para validar los niveles de log.
+
+La configuracion principal de Swagger esta separada de las rutas en:
+
+```text
+src/config/swagger.config.js
+```
+
+Los endpoints se documentan en los archivos de rutas dentro de:
+
+```text
+src/routes/
+```
+
+Schemas reutilizables definidos:
+
+- `User`
+- `Product`
+- `Employee`
+- `Order`
+- `OrderProduct`
+- `SuccessResponse`
+- `ErrorResponse`
+
+Los errores documentados reflejan el manejo centralizado de la API:
+
+- `400 VALIDATION_ERROR`: datos invalidos, cantidades invalidas en mocks o estado invalido en pedidos.
+- `404 NOT_FOUND_ERROR`: recurso no encontrado.
+- `409 DUPLICATE_ERROR`: recurso duplicado.
+- `500 INTERNAL_SERVER_ERROR`: error interno del servidor.
 
 ## Variables de entorno
 
@@ -184,6 +239,7 @@ Respuesta esperada:
 ```http
 GET    /api/products
 GET    /api/products/available
+GET    /api/products/disponibles
 GET    /api/products/:pid
 POST   /api/products
 PUT    /api/products/:pid
@@ -289,6 +345,8 @@ POST   /api/mocks/populate
 GET    /api/logs/test
 ```
 
+Este endpoint es una herramienta de validacion tecnica del logger. No representa una funcionalidad de negocio del restaurante.
+
 Los endpoints `GET` solo generan datos en memoria y no guardan en MongoDB:
 
 ```http
@@ -352,6 +410,30 @@ Respuesta esperada:
   "message": "El campo cantidad debe ser numerico"
 }
 ```
+
+## Probar con Swagger
+
+1. Levantar el servidor con `npm run dev`.
+2. Abrir `http://localhost:8080/api/docs`.
+3. Desplegar un modulo, por ejemplo `Users`.
+4. Abrir un endpoint, por ejemplo `GET /api/users`.
+5. Presionar `Try it out`.
+6. Completar parametros o body si corresponde.
+7. Presionar `Execute`.
+8. Revisar `Server response`, `Code` y `Response body`.
+
+Ejemplo para crear un usuario desde Swagger:
+
+```json
+{
+  "nombre": "Juan",
+  "apellido": "Perez",
+  "email": "juan.perez@mail.com",
+  "rol": "USUARIO"
+}
+```
+
+Si se vuelve a usar el mismo email, la API responde un error `409 DUPLICATE_ERROR`.
 
 ## Probar con Postman
 
