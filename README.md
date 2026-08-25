@@ -12,6 +12,10 @@ API REST para la gestion de un restaurante. Permite trabajar con usuarios, produ
 - Winston
 - Winston Daily Rotate File
 - Swagger / OpenAPI
+- Mocha
+- Chai
+- Supertest
+- Cross-env
 - JavaScript ES Modules
 
 ## Instalacion
@@ -49,6 +53,7 @@ Si inicia bien, la consola muestra:
 ```bash
 npm run dev
 npm start
+npm test
 ```
 
 ## Documentacion Swagger
@@ -112,6 +117,16 @@ Los errores documentados reflejan el manejo centralizado de la API:
 - `NODE_ENV`: entorno de ejecucion.
 
 El archivo `.env` no se sube a GitHub. Como referencia se incluye `.env.example`.
+
+Para ejecutar tests se usa un entorno separado con `.env.test`:
+
+```env
+PORT=8081
+MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@CLUSTER.mongodb.net/resto-api-test?retryWrites=true&w=majority
+NODE_ENV=test
+```
+
+El archivo `.env.test` tampoco se sube a GitHub. Como referencia se incluye `.env.test.example`.
 
 ## Arquitectura
 
@@ -434,6 +449,58 @@ Ejemplo para crear un usuario desde Swagger:
 ```
 
 Si se vuelve a usar el mismo email, la API responde un error `409 DUPLICATE_ERROR`.
+
+## Testing funcional
+
+La API cuenta con una suite inicial de tests funcionales usando:
+
+- `Mocha`: organiza y ejecuta los tests.
+- `Chai`: valida status, estructura del body y propiedades importantes.
+- `Supertest`: realiza peticiones HTTP contra la app Express sin levantar manualmente un puerto.
+- `Cross-env`: permite ejecutar `NODE_ENV=test` de forma compatible entre sistemas operativos.
+
+Ejecutar los tests:
+
+```bash
+npm test
+```
+
+El script de testing usa:
+
+```json
+"test": "cross-env NODE_ENV=test mocha \"tests/**/*.test.js\" --timeout 10000"
+```
+
+Esto hace que la configuracion cargue `.env.test` y use una base separada, por ejemplo:
+
+```text
+resto-api-test
+```
+
+Los datos creados durante los tests son controlados y descartables. La suite conecta a MongoDB de testing, limpia las colecciones antes o despues de cada grupo y cierra la conexion al finalizar.
+
+Modulos cubiertos:
+
+- `Swagger`: acceso a `/api/docs` y carga de Swagger UI.
+- `Logger`: acceso a `/api/logs/test`.
+- `Users`: listado, creacion correcta, datos incompletos y usuario inexistente.
+- `Mocks`: generacion correcta y errores por cantidad faltante o invalida.
+- `Orders`: listado, creacion con empleado/producto controlados, consulta por ID, actualizacion de estado, estado invalido, datos incompletos y pedido inexistente.
+- `Not found`: ruta inexistente con formato de error centralizado.
+
+Los tests validan:
+
+- status HTTP esperado;
+- `status` del body (`success` o `error`);
+- `payload` en respuestas exitosas;
+- `code` y `message` en respuestas de error;
+- estructura de arrays y propiedades importantes.
+
+Ejemplo de salida esperada:
+
+```text
+19 passing
+```
 
 ## Probar con Postman
 
