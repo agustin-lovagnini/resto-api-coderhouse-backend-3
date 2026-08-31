@@ -1,5 +1,8 @@
 import mongoose from 'mongoose'
-import { ESTADOS_PEDIDO } from '../constants/index.js'
+import {
+  ESTADOS_PEDIDO,
+  TIPOS_COMPROBANTE_PEDIDO
+} from '../constants/index.js'
 
 const orderProductSchema = new mongoose.Schema(
   {
@@ -22,6 +25,48 @@ const orderProductSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0
+    }
+  },
+  {
+    _id: false
+  }
+)
+
+const fileMetadataSchema = new mongoose.Schema(
+  {
+    nombreOriginal: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    nombreArchivo: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    ruta: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    mimetype: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    size: {
+      type: Number,
+      required: true,
+      min: 1
+    },
+    tipoDocumento: {
+      type: String,
+      enum: Object.values(TIPOS_COMPROBANTE_PEDIDO),
+      required: true
+    },
+    fechaCarga: {
+      type: Date,
+      default: Date.now
     }
   },
   {
@@ -63,6 +108,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: '',
       trim: true
+    },
+    comprobantes: {
+      type: [fileMetadataSchema],
+      default: []
     }
   },
   {

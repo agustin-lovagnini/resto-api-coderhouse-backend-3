@@ -30,3 +30,17 @@ export const ESTADOS_PEDIDO = Object.freeze({
   ENTREGADO: 'ENTREGADO',
   CANCELADO: 'CANCELADO'
 })
+
+export const TIPOS_DOCUMENTO_USUARIO = Object.freeze({
+  DNI: 'DNI',
+  CARNET_SANITARIO: 'CARNET_SANITARIO',
+  CONSTANCIA: 'CONSTANCIA',
+  OTRO: 'OTRO'
+})
+
+export const TIPOS_COMPROBANTE_PEDIDO = Object.freeze({
+  TICKET: 'TICKET',
+  PAGO: 'PAGO',
+  ENTREGA: 'ENTREGA',
+  OTRO: 'OTRO'
+})

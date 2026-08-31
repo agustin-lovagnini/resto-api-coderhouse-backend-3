@@ -56,6 +56,27 @@ export const actualizarUsuario = async (req, res, next) => {
   }
 }
 
+export const subirDocumentoUsuario = async (req, res, next) => {
+  try {
+    const { uid } = req.params
+    const { tipoDocumento } = req.body
+
+    const usuario = await usersService.subirDocumentoUsuario(
+      uid,
+      req.file,
+      tipoDocumento
+    )
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Documento cargado correctamente',
+      payload: usuario
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const eliminarUsuario = async (req, res, next) => {
   try {
     const { uid } = req.params

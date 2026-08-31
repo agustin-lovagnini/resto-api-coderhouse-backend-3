@@ -1,4 +1,8 @@
-import { ESTADOS_PEDIDO, ESTADOS_PRODUCTO } from '../constants/index.js'
+import {
+  ESTADOS_PEDIDO,
+  ESTADOS_PRODUCTO,
+  TIPOS_COMPROBANTE_PEDIDO
+} from '../constants/index.js'
 import {
   createNotFoundError,
   createValidationError
@@ -49,6 +53,18 @@ const prepararProductosDelPedido = async (productos = []) => {
 
 const calcularTotal = (productos) => {
   return productos.reduce((total, item) => total + item.subtotal, 0)
+}
+
+const crearMetadataArchivo = (file, tipoDocumento) => {
+  return {
+    nombreOriginal: file.originalname,
+    nombreArchivo: file.filename,
+    ruta: file.path,
+    mimetype: file.mimetype,
+    size: file.size,
+    tipoDocumento,
+    fechaCarga: new Date()
+  }
 }
 
 export const ordersService = {
@@ -169,6 +185,46 @@ export const ordersService = {
       pedidoId: id,
       estado: pedidoActualizado.estado,
       total: pedidoActualizado.total
+    })
+
+    return pedidoActualizado
+  },
+
+  subirComprobantePedido: async (id, file, tipoDocumento) => {
+    if (!file) {
+      throw createValidationError('El archivo es obligatorio')
+    }
+
+    if (!tipoDocumento) {
+      throw createValidationError('El tipo de comprobante es obligatorio')
+    }
+
+    if (!Object.values(TIPOS_COMPROBANTE_PEDIDO).includes(tipoDocumento)) {
+      logger.warning('Tipo de comprobante de pedido no permitido', {
+        pedidoId: id,
+        tipoDocumento
+      })
+
+      throw createValidationError('El tipo de comprobante no es valido')
+    }
+
+    const pedido = await ordersRepository.getById(id)
+
+    if (!pedido) {
+      throw createNotFoundError('Pedido no encontrado')
+    }
+
+    const comprobante = crearMetadataArchivo(file, tipoDocumento)
+
+    const pedidoActualizado = await ordersRepository.addReceiptById(
+      id,
+      comprobante
+    )
+
+    logger.info('Comprobante asociado al pedido correctamente', {
+      pedidoId: id,
+      tipoDocumento,
+      archivo: comprobante.nombreArchivo
     })
 
     return pedidoActualizado
