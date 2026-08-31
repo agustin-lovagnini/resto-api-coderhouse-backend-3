@@ -1,10 +1,26 @@
-import { ROLES_USUARIO } from '../constants/index.js'
+import {
+  ROLES_USUARIO,
+  TIPOS_DOCUMENTO_USUARIO
+} from '../constants/index.js'
+import { logger } from '../config/logger.config.js'
 import {
   createDuplicateError,
   createNotFoundError,
   createValidationError
 } from '../errors/errorFactory.js'
 import { usersRepository } from '../repositories/users.repository.js'
+
+const crearMetadataArchivo = (file, tipoDocumento) => {
+  return {
+    nombreOriginal: file.originalname,
+    nombreArchivo: file.filename,
+    ruta: file.path,
+    mimetype: file.mimetype,
+    size: file.size,
+    tipoDocumento,
+    fechaCarga: new Date()
+  }
+}
 
 export const usersService = {
   obtenerUsuarios: async () => {
@@ -76,6 +92,46 @@ export const usersService = {
     if (!usuarioActualizado) {
       throw createNotFoundError('Usuario no encontrado')
     }
+
+    return usuarioActualizado
+  },
+
+  subirDocumentoUsuario: async (id, file, tipoDocumento) => {
+    if (!file) {
+      throw createValidationError('El archivo es obligatorio')
+    }
+
+    if (!tipoDocumento) {
+      throw createValidationError('El tipo de documento es obligatorio')
+    }
+
+    if (!Object.values(TIPOS_DOCUMENTO_USUARIO).includes(tipoDocumento)) {
+      logger.warning('Tipo de documento de usuario no permitido', {
+        usuarioId: id,
+        tipoDocumento
+      })
+
+      throw createValidationError('El tipo de documento no es valido')
+    }
+
+    const usuario = await usersRepository.getById(id)
+
+    if (!usuario) {
+      throw createNotFoundError('Usuario no encontrado')
+    }
+
+    const documento = crearMetadataArchivo(file, tipoDocumento)
+
+    const usuarioActualizado = await usersRepository.addDocumentById(
+      id,
+      documento
+    )
+
+    logger.info('Documento de usuario cargado correctamente', {
+      usuarioId: id,
+      tipoDocumento,
+      archivo: documento.nombreArchivo
+    })
 
     return usuarioActualizado
   },

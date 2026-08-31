@@ -69,6 +69,27 @@ export const actualizarPedido = async (req, res, next) => {
   }
 }
 
+export const subirComprobantePedido = async (req, res, next) => {
+  try {
+    const { oid } = req.params
+    const { tipoDocumento } = req.body
+
+    const pedido = await ordersService.subirComprobantePedido(
+      oid,
+      req.file,
+      tipoDocumento
+    )
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Comprobante cargado correctamente',
+      payload: pedido
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const eliminarPedido = async (req, res, next) => {
   try {
     const { oid } = req.params

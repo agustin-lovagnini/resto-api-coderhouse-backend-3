@@ -9,6 +9,7 @@ API REST para la gestion de un restaurante. Permite trabajar con usuarios, produ
 - MongoDB
 - Mongoose
 - Dotenv
+- Multer
 - Winston
 - Winston Daily Rotate File
 - Swagger / OpenAPI
@@ -247,6 +248,52 @@ Respuesta esperada:
 }
 ```
 
+## Carga de archivos
+
+La API permite subir archivos con Multer usando `multipart/form-data`. Los archivos se guardan en carpetas del servidor y en MongoDB se registran solo sus metadatos: nombre original, nombre generado, ruta, tipo MIME, tamaño, tipo de documento y fecha de carga.
+
+Carpetas usadas:
+
+```text
+uploads/users/documents
+uploads/orders/receipts
+```
+
+La carpeta `uploads/` esta en `.gitignore`, por lo tanto los archivos subidos no se versionan en GitHub.
+
+Tipos de archivo permitidos:
+
+```text
+image/jpeg
+image/png
+image/webp
+application/pdf
+```
+
+Tamaño maximo permitido:
+
+```text
+5 MB
+```
+
+Tipos de documento para usuarios:
+
+```text
+DNI
+CARNET_SANITARIO
+CONSTANCIA
+OTRO
+```
+
+Tipos de comprobante para pedidos:
+
+```text
+TICKET
+PAGO
+ENTREGA
+OTRO
+```
+
 ## Endpoints principales
 
 ### Products
@@ -279,6 +326,7 @@ Ejemplo:
 GET    /api/users
 GET    /api/users/:uid
 POST   /api/users
+POST   /api/users/:uid/documents
 PUT    /api/users/:uid
 DELETE /api/users/:uid
 ```
@@ -291,6 +339,14 @@ Ejemplo:
   "apellido": "Varela",
   "email": "agustin@example.com"
 }
+```
+
+Ejemplo para subir un documento de usuario:
+
+```bash
+curl -X POST http://localhost:8080/api/users/ID_DEL_USUARIO/documents \
+  -F "tipoDocumento=DNI" \
+  -F "documento=@prueba-documento.pdf;type=application/pdf"
 ```
 
 ### Employees
@@ -323,6 +379,7 @@ GET    /api/orders
 GET    /api/orders/pendientes
 GET    /api/orders/:oid
 POST   /api/orders
+POST   /api/orders/:oid/receipts
 PUT    /api/orders/:oid
 DELETE /api/orders/:oid
 ```
@@ -341,6 +398,14 @@ Ejemplo:
   ],
   "observaciones": "Sin sal"
 }
+```
+
+Ejemplo para subir un comprobante de pedido:
+
+```bash
+curl -X POST http://localhost:8080/api/orders/ID_DEL_PEDIDO/receipts \
+  -F "tipoDocumento=TICKET" \
+  -F "comprobante=@ticket.pdf;type=application/pdf"
 ```
 
 ## Endpoints de mocking
@@ -522,7 +587,7 @@ La aplicacion no inicia si falta una variable critica como `PORT`, `MONGODB_URI`
 https://github.com/agustin-lovagnini/resto-api-coderhouse-backend-3
 ```
 
-El proyecto no incluye `node_modules`, `.env` ni archivos generados dentro de `logs/`. Las dependencias se instalan con:
+El proyecto no incluye `node_modules`, `.env`, archivos generados dentro de `logs/` ni archivos cargados dentro de `uploads/`. Las dependencias se instalan con:
 
 ```bash
 npm install

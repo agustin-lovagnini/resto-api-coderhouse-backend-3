@@ -1,6 +1,6 @@
 import { OrderModel } from '../models/order.model.js'
 
-const orderProjection = 'mesa empleado productos estado total observaciones createdAt updatedAt'
+const orderProjection = 'mesa empleado productos estado total observaciones comprobantes createdAt updatedAt'
 
 const populateOrder = (query) => {
   return query
@@ -38,6 +38,24 @@ export const ordersRepository = {
         new: true,
         runValidators: true
       }).select(orderProjection)
+    )
+  },
+
+  //! para actualizar varios pedidos a la vez
+  addReceiptById: async (id, receiptData) => {
+    return populateOrder(
+      OrderModel.findByIdAndUpdate(
+        id,
+        {
+          $push: {
+            comprobantes: receiptData
+          }
+        },
+        {
+          new: true,
+          runValidators: true
+        }
+      ).select(orderProjection)
     )
   },
 
