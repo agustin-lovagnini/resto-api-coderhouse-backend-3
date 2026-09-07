@@ -1,6 +1,7 @@
 import express from 'express'
 import swaggerUi from 'swagger-ui-express' //? muestra Swagger como una página web interactiva.
 import employeesRouter from './routes/employees.routes.js'
+import healthRouter from './routes/health.routes.js'
 import logsRouter from './routes/logs.routes.js'
 import mocksRouter from './routes/mocks.routes.js'
 import ordersRouter from './routes/orders.routes.js'
@@ -22,6 +23,8 @@ app.get('/', (req, res) => {
     message: 'Resto API funcionando correctamente'
   })
 })
+
+app.use('/api/health', healthRouter)
 
 app.use('/api/products', productsRouter)
 app.use('/api/users', usersRouter)

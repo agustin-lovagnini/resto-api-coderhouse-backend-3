@@ -91,6 +91,32 @@ describe('Orders endpoints', () => {
         pedidoId = response.body.payload._id //? Guardamos el ID del pedido creado para usarlo en los siguientes tests
     })
 
+    //! Test para subir un comprobante de pedido
+    it('debe subir un comprobante de pedido correctamente', async () => {
+        const response = await request(app)
+            .post(`/api/orders/${pedidoId}/receipts`)
+            .field('tipoDocumento', 'TICKET')
+            .attach('comprobante', 'prueba-documento.pdf')
+            .expect(200)
+
+        expect(response.body).to.have.property('status', 'success')
+        expect(response.body).to.have.property(
+            'message',
+            'Comprobante cargado correctamente'
+        )
+        expect(response.body).to.have.property('payload')
+        expect(response.body.payload.comprobantes).to.be.an('array')
+        expect(response.body.payload.comprobantes).to.have.lengthOf(1)
+        expect(response.body.payload.comprobantes[0]).to.have.property(
+            'tipoDocumento',
+            'TICKET'
+        )
+        expect(response.body.payload.comprobantes[0]).to.have.property(
+            'mimetype',
+            'application/pdf'
+        )
+    })
+
     //! Test para obtener un pedido por ID
     it('debe obtener un pedido por ID', async () => {
         const response = await request(app)
