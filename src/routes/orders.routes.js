@@ -17,10 +17,48 @@ const router = Router()
  * @swagger
  * /api/orders:
  *   get:
- *     summary: Obtener todos los pedidos
- *     description: Devuelve el listado completo de pedidos del restaurante.
+ *     summary: Obtener pedidos paginados
+ *     description: Devuelve un listado paginado de pedidos. Permite filtrar por estado.
  *     tags:
  *       - Orders
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina a consultar.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de pedidos por pagina.
+ *         example: 10
+ *       - in: query
+ *         name: estado
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - PENDIENTE
+ *             - EN_PREPARACION
+ *             - LISTO
+ *             - ENTREGADO
+ *             - CANCELADO
+ *         description: Filtra los pedidos por estado.
+ *         example: PENDIENTE
+ *     responses:
+ *       200:
+ *         description: Pedidos obtenidos correctamente.
+ *       400:
+ *         description: Parametros de paginacion o estado invalidos.
  */
 router.get('/', obtenerPedidos)
 
@@ -28,10 +66,35 @@ router.get('/', obtenerPedidos)
  * @swagger
  * /api/orders/pendientes:
  *   get:
- *     summary: Obtener pedidos pendientes
- *     description: Devuelve los pedidos cuyo estado es PENDIENTE.
+ *     summary: Obtener pedidos pendientes paginados
+ *     description: Devuelve un listado paginado de pedidos cuyo estado es PENDIENTE.
  *     tags:
  *       - Orders
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina a consultar.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de pedidos por pagina.
+ *         example: 10
+ *     responses:
+ *       200:
+ *         description: Pedidos pendientes obtenidos correctamente.
+ *       400:
+ *         description: Parametros de paginacion invalidos.
  */
 router.get('/pendientes', obtenerPedidosPendientes)
 

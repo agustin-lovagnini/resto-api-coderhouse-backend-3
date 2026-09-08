@@ -24,9 +24,7 @@ const logColors = {
 
 winston.addColors(logColors)
 
-const consoleLogLevel = config.nodeEnv === 'production'
-    ? 'info' //* En producción, solo mostramos logs de info y superiores
-    : 'debug' //* En desarrollo, mostramos todos los logs, incluyendo debug
+const consoleLogLevel = config.logLevel
 
 const logFormat = winston.format.combine(
     winston.format.timestamp({

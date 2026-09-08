@@ -3,11 +3,17 @@ import { UserModel } from '../models/user.model.js'
 const userProjection = 'nombre apellido email rol documentos createdAt updatedAt'
 
 export const usersRepository = {
-  getAll: async () => {
+  getAll: async ({ limit, skip } = {}) => {
     return UserModel.find()
       .select(userProjection)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .lean()
+  },
+
+  countAll: async () => {
+    return UserModel.countDocuments()
   },
 
   getById: async (id) => {

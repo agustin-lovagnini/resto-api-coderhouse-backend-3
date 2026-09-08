@@ -16,13 +16,35 @@ const router = Router()
  * @swagger
  * /api/users:
  *   get:
- *     summary: Obtener todos los usuarios
- *     description: Devuelve el listado completo de usuarios registrados en el sistema.
+ *     summary: Obtener usuarios paginados
+ *     description: Devuelve un listado paginado de usuarios registrados en el sistema.
  *     tags:
  *       - Users
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina a consultar.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de usuarios por pagina.
+ *         example: 10
  *     responses:
  *       200:
  *         description: Usuarios obtenidos correctamente.
+ *       400:
+ *         description: Parametros de paginacion invalidos.
  */
 router.get('/', obtenerUsuarios)
 

@@ -52,14 +52,22 @@ describe('Orders endpoints', () => {
     })
 
     //! Tests funcionales para los endpoints de pedidos
-    it('debe obtener un listado de pedidos', async () => {
+    it('debe obtener un listado paginado de pedidos', async () => {
         const response = await request(app)
             .get('/api/orders')
+            .query({ page: 1, limit: 10 })
             .expect(200)
 
         expect(response.body).to.have.property('status', 'success')
         expect(response.body).to.have.property('payload')
         expect(response.body.payload).to.be.an('array')
+        expect(response.body).to.have.property('pagination')
+        expect(response.body.pagination).to.have.property('page', 1)
+        expect(response.body.pagination).to.have.property('limit', 10)
+        expect(response.body.pagination).to.have.property('totalDocs')
+        expect(response.body.pagination).to.have.property('totalPages')
+        expect(response.body.pagination).to.have.property('hasPrevPage')
+        expect(response.body.pagination).to.have.property('hasNextPage')
     })
 
     //! Test para crear un pedido correctamente
@@ -115,6 +123,24 @@ describe('Orders endpoints', () => {
             'mimetype',
             'application/pdf'
         )
+    })
+
+    //! Test para filtrar pedidos por estado
+    it('debe obtener pedidos filtrados por estado', async () => {
+        const response = await request(app)
+            .get('/api/orders')
+            .query({ page: 1, limit: 10, estado: 'PENDIENTE' })
+            .expect(200)
+
+        expect(response.body).to.have.property('status', 'success')
+        expect(response.body).to.have.property('payload')
+        expect(response.body.payload).to.be.an('array')
+        expect(response.body).to.have.property('pagination')
+        expect(response.body.pagination).to.have.property('page', 1)
+        expect(response.body.pagination).to.have.property('limit', 10)
+        expect(response.body.payload.every((pedido) => {
+            return pedido.estado === 'PENDIENTE'
+        })).to.equal(true)
     })
 
     //! Test para obtener un pedido por ID

@@ -33,6 +33,8 @@ Crear un archivo `.env` en la raiz del proyecto:
 PORT=8080
 MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@CLUSTER.mongodb.net/resto-api?appName=Cluster0
 NODE_ENV=development
+LOG_LEVEL=debug
+UPLOADS_DIR=uploads
 ```
 
 Ejecutar en desarrollo:
@@ -73,12 +75,15 @@ npm run dev
 
 Swagger permite consultar y probar los endpoints desde el navegador usando el boton `Try it out` y luego `Execute`.
 
+Swagger queda disponible tambien en `NODE_ENV=production` como documentacion publica de la API.
+
 Modulos documentados:
 
 - `Users`: gestion de usuarios.
 - `Products`: gestion de productos del menu.
 - `Employees`: gestion de empleados del restaurante.
 - `Orders`: gestion de pedidos.
+- `Health`: estado basico de disponibilidad de la API.
 - `Mocks`: generacion de datos falsos e insercion de datos de prueba.
 - `Logger`: endpoint tecnico para validar los niveles de log.
 
@@ -116,6 +121,8 @@ Los errores documentados reflejan el manejo centralizado de la API:
 - `PORT`: puerto donde corre la API.
 - `MONGODB_URI`: conexion a MongoDB.
 - `NODE_ENV`: entorno de ejecucion.
+- `LOG_LEVEL`: nivel minimo de logs (`fatal`, `error`, `warning`, `info`, `http`, `debug`). Si no se define, usa `info` en produccion y `debug` en desarrollo/testing.
+- `UPLOADS_DIR`: carpeta base para guardar archivos subidos. Si no se define, usa `uploads`.
 
 El archivo `.env` no se sube a GitHub. Como referencia se incluye `.env.example`.
 
@@ -125,6 +132,8 @@ Para ejecutar tests se usa un entorno separado con `.env.test`:
 PORT=8081
 MONGODB_URI=mongodb+srv://USUARIO:PASSWORD@CLUSTER.mongodb.net/resto-api-test?retryWrites=true&w=majority
 NODE_ENV=test
+LOG_LEVEL=debug
+UPLOADS_DIR=uploads
 ```
 
 El archivo `.env.test` tampoco se sube a GitHub. Como referencia se incluye `.env.test.example`.
@@ -261,6 +270,8 @@ uploads/orders/receipts
 
 La carpeta `uploads/` esta en `.gitignore`, por lo tanto los archivos subidos no se versionan en GitHub.
 
+La carpeta base se configura con `UPLOADS_DIR`. Estos archivos no se consideran almacenamiento permanente: en produccion deberian respaldarse con un volumen externo o un servicio de almacenamiento dedicado.
+
 Tipos de archivo permitidos:
 
 ```text
@@ -296,6 +307,26 @@ OTRO
 
 ## Endpoints principales
 
+Los listados principales usan paginacion para evitar respuestas demasiado grandes. Si no se indican parametros, la API usa `page=1` y `limit=10`. El limite maximo permitido es `100`.
+
+### Health
+
+```http
+GET    /api/health
+```
+
+Respuesta esperada:
+
+```json
+{
+  "status": "success",
+  "api": "Resto API",
+  "environment": "development",
+  "uptime": 120.5,
+  "timestamp": "2026-09-08T00:50:44.433Z"
+}
+```
+
 ### Products
 
 ```http
@@ -323,7 +354,7 @@ Ejemplo:
 ### Users
 
 ```http
-GET    /api/users
+GET    /api/users?page=1&limit=10
 GET    /api/users/:uid
 POST   /api/users
 POST   /api/users/:uid/documents
@@ -352,8 +383,8 @@ curl -X POST http://localhost:8080/api/users/ID_DEL_USUARIO/documents \
 ### Employees
 
 ```http
-GET    /api/employees
-GET    /api/employees/activos
+GET    /api/employees?page=1&limit=10
+GET    /api/employees/activos?page=1&limit=10
 GET    /api/employees/:eid
 POST   /api/employees
 PUT    /api/employees/:eid
@@ -375,8 +406,9 @@ Ejemplo:
 ### Orders
 
 ```http
-GET    /api/orders
-GET    /api/orders/pendientes
+GET    /api/orders?page=1&limit=10
+GET    /api/orders?page=1&limit=10&estado=PENDIENTE
+GET    /api/orders/pendientes?page=1&limit=10
 GET    /api/orders/:oid
 POST   /api/orders
 POST   /api/orders/:oid/receipts
@@ -410,6 +442,8 @@ curl -X POST http://localhost:8080/api/orders/ID_DEL_PEDIDO/receipts \
 
 ## Endpoints de mocking
 
+Estos endpoints son herramientas internas para desarrollo y testing. En `NODE_ENV=production` no se montan en la aplicacion.
+
 Los mocks generan datos falsos para probar la API usando `@faker-js/faker`.
 
 ```http
@@ -426,6 +460,7 @@ GET    /api/logs/test
 ```
 
 Este endpoint es una herramienta de validacion tecnica del logger. No representa una funcionalidad de negocio del restaurante.
+En `NODE_ENV=production` no se monta en la aplicacion.
 
 Los endpoints `GET` solo generan datos en memoria y no guardan en MongoDB:
 
@@ -548,9 +583,10 @@ Modulos cubiertos:
 
 - `Swagger`: acceso a `/api/docs` y carga de Swagger UI.
 - `Logger`: acceso a `/api/logs/test`.
-- `Users`: listado, creacion correcta, datos incompletos y usuario inexistente.
+- `Users`: listado paginado, creacion correcta, datos incompletos, usuario inexistente y carga de documento.
+- `Employees`: creacion correcta y listado paginado.
 - `Mocks`: generacion correcta y errores por cantidad faltante o invalida.
-- `Orders`: listado, creacion con empleado/producto controlados, consulta por ID, actualizacion de estado, estado invalido, datos incompletos y pedido inexistente.
+- `Orders`: listado paginado, filtro por estado, creacion con empleado/producto controlados, carga de comprobante, consulta por ID, actualizacion de estado, estado invalido, datos incompletos y pedido inexistente.
 - `Not found`: ruta inexistente con formato de error centralizado.
 
 Los tests validan:
@@ -564,8 +600,63 @@ Los tests validan:
 Ejemplo de salida esperada:
 
 ```text
-19 passing
+24 passing
 ```
+
+## Docker
+
+El proyecto incluye un `Dockerfile` para construir una imagen de la API y un `.dockerignore` para evitar copiar archivos innecesarios o sensibles dentro de la imagen.
+
+Construir la imagen:
+
+```bash
+docker build -t resto-api .
+```
+
+Ejecutar el contenedor usando variables desde `.env`:
+
+```bash
+docker run --env-file .env -p 8080:8080 --name resto-api-container resto-api
+```
+
+La API queda disponible en:
+
+```text
+http://localhost:8080
+```
+
+Endpoints recomendados para probar el contenedor:
+
+```text
+http://localhost:8080/api/health
+http://localhost:8080/api/docs
+http://localhost:8080/api/users?page=1&limit=10
+```
+
+Detener el contenedor:
+
+```bash
+docker stop resto-api-container
+```
+
+Si se quiere volver a usar el mismo nombre de contenedor despues de detenerlo, se puede eliminar el contenedor detenido:
+
+```bash
+docker rm resto-api-container
+```
+
+Archivos y carpetas que no deben copiarse a la imagen:
+
+- `node_modules`
+- `.env`
+- `.env.test`
+- `.git`
+- `logs`
+- `uploads`
+- `coverage`
+- archivos temporales o logs generados
+
+Los uploads se configuran con `UPLOADS_DIR`. En Docker se recomienda usar un volumen si se quiere conservar archivos subidos fuera del ciclo de vida del contenedor.
 
 ## Probar con Postman
 

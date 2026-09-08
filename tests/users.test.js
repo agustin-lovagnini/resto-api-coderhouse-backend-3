@@ -39,15 +39,23 @@ describe('Users endpoints', () => {
         expect(response.body.payload).to.have.property('rol', 'USUARIO')
     })
 
-    //! Test para verificar que se puede obtener un listado de usuarios
-    it('debe obtener un listado de usuarios', async () => {
+    //! Test para verificar que se puede obtener un listado paginado de usuarios
+        it('debe obtener un listado paginado de usuarios', async () => {
         const response = await request(app)
             .get('/api/users')
+            .query({ page: 1, limit: 10 })
             .expect(200)
 
         expect(response.body).to.have.property('status', 'success')
         expect(response.body).to.have.property('payload')
         expect(response.body.payload).to.be.an('array')
+        expect(response.body).to.have.property('pagination')
+        expect(response.body.pagination).to.have.property('page', 1)
+        expect(response.body.pagination).to.have.property('limit', 10)
+        expect(response.body.pagination).to.have.property('totalDocs')
+        expect(response.body.pagination).to.have.property('totalPages')
+        expect(response.body.pagination).to.have.property('hasPrevPage')
+        expect(response.body.pagination).to.have.property('hasNextPage')
     })
 
     //! Test para verificar que se puede crear un usuario correctamente

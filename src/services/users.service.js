@@ -9,6 +9,10 @@ import {
   createValidationError
 } from '../errors/errorFactory.js'
 import { usersRepository } from '../repositories/users.repository.js'
+import {
+  buildPaginationMeta,
+  getPaginationParams
+} from '../utils/pagination.js'
 
 const crearMetadataArchivo = (file, tipoDocumento) => {
   return {
@@ -23,8 +27,22 @@ const crearMetadataArchivo = (file, tipoDocumento) => {
 }
 
 export const usersService = {
-  obtenerUsuarios: async () => {
-    return usersRepository.getAll()
+    obtenerUsuarios: async (query) => {
+    const pagination = getPaginationParams(query) //? obtenemos los parametros de paginacion desde la query y validamos que sean numeros enteros positivos
+
+    const [usuarios, totalDocs] = await Promise.all([ //? obtenemos los usuarios y el total de documentos en paralelo
+      usersRepository.getAll(pagination),
+      usersRepository.countAll()
+    ])
+
+    return {
+      payload: usuarios,
+      pagination: buildPaginationMeta({
+        page: pagination.page,
+        limit: pagination.limit,
+        totalDocs
+      })
+    }
   },
 
   obtenerUsuarioPorId: async (id) => {

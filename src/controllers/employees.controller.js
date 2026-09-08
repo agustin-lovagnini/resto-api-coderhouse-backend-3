@@ -2,11 +2,12 @@ import { employeesService } from '../services/employees.service.js'
 
 export const obtenerEmpleados = async (req, res, next) => {
   try {
-    const empleados = await employeesService.obtenerEmpleados()
+    const resultado = await employeesService.obtenerEmpleados(req.query)
 
     res.status(200).json({
       status: 'success',
-      payload: empleados
+      payload: resultado.payload,
+      pagination: resultado.pagination
     })
   } catch (error) {
     next(error)
@@ -15,11 +16,12 @@ export const obtenerEmpleados = async (req, res, next) => {
 
 export const obtenerEmpleadosActivos = async (req, res, next) => {
   try {
-    const empleados = await employeesService.obtenerEmpleadosActivos()
+    const resultado = await employeesService.obtenerEmpleadosActivos(req.query)
 
     res.status(200).json({
       status: 'success',
-      payload: empleados
+      payload: resultado.payload,
+      pagination: resultado.pagination
     })
   } catch (error) {
     next(error)

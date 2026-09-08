@@ -2,11 +2,12 @@ import { usersService } from '../services/users.service.js'
 
 export const obtenerUsuarios = async (req, res, next) => {
   try {
-    const usuarios = await usersService.obtenerUsuarios()
+    const resultado = await usersService.obtenerUsuarios(req.query)
 
     res.status(200).json({
       status: 'success',
-      payload: usuarios
+      payload: resultado.payload,
+      pagination: resultado.pagination
     })
   } catch (error) {
     next(error)

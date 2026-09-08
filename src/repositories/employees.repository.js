@@ -3,11 +3,17 @@ import { EmployeeModel } from '../models/employee.model.js'
 const employeeProjection = 'nombre apellido email telefono puesto activo createdAt updatedAt'
 
 export const employeesRepository = {
-  getAll: async (filter = {}) => {
+  getAll: async (filter = {}, { limit, skip } = {}) => {
     return EmployeeModel.find(filter)
       .select(employeeProjection)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .lean()
+  },
+
+  countAll: async (filter = {}) => {
+    return EmployeeModel.countDocuments(filter)
   },
 
   getById: async (id) => {
