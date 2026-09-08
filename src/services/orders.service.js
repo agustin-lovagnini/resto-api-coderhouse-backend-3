@@ -11,6 +11,10 @@ import { logger } from '../config/logger.config.js'
 import { employeesRepository } from '../repositories/employees.repository.js'
 import { ordersRepository } from '../repositories/orders.repository.js'
 import { productsRepository } from '../repositories/products.repository.js'
+import {
+  buildPaginationMeta,
+  getPaginationParams
+} from '../utils/pagination.js'
 
 const prepararProductosDelPedido = async (productos = []) => {
   if (!Array.isArray(productos) || productos.length === 0) {
@@ -67,15 +71,49 @@ const crearMetadataArchivo = (file, tipoDocumento) => {
   }
 }
 
+const buildOrdersFilter = (query = {}) => {
+  const filter = {} //? objeto que contendra los filtros para la consulta de pedidos
+
+  if (query.estado) {
+    if (!Object.values(ESTADOS_PEDIDO).includes(query.estado)) { //? validamos que el estado pasado como parametro sea uno de los estados permitidos
+      throw createValidationError('El estado del pedido no es valido')
+    }
+
+    filter.estado = query.estado //? agregamos el filtro de estado al objeto filter
+  }
+
+  return filter
+}
+
+const obtenerPedidosPaginados = async (filter, query) => {
+  const pagination = getPaginationParams(query)
+
+  const [pedidos, totalDocs] = await Promise.all([
+    ordersRepository.getAll(filter, pagination),
+    ordersRepository.countAll(filter)
+  ])
+
+  return {
+    payload: pedidos,
+    pagination: buildPaginationMeta({
+      page: pagination.page,
+      limit: pagination.limit,
+      totalDocs
+    })
+  }
+}
+
 export const ordersService = {
-  obtenerPedidos: async () => {
-    return ordersRepository.getAll()
+  obtenerPedidos: async (query) => {
+    const filter = buildOrdersFilter(query)
+
+    return obtenerPedidosPaginados(filter, query)
   },
 
-  obtenerPedidosPendientes: async () => {
-    return ordersRepository.getAll({
+  obtenerPedidosPendientes: async (query) => {
+    return obtenerPedidosPaginados({
       estado: ESTADOS_PEDIDO.PENDIENTE
-    })
+    }, query)
   },
 
   obtenerPedidoPorId: async (id) => {

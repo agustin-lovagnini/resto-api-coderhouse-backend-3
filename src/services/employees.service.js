@@ -5,14 +5,36 @@ import {
   createValidationError
 } from '../errors/errorFactory.js'
 import { employeesRepository } from '../repositories/employees.repository.js'
+import {
+  buildPaginationMeta,
+  getPaginationParams
+} from '../utils/pagination.js'
+
+const obtenerEmpleadosPaginados = async (filter, query) => {
+  const pagination = getPaginationParams(query)
+
+  const [empleados, totalDocs] = await Promise.all([
+    employeesRepository.getAll(filter, pagination),
+    employeesRepository.countAll(filter)
+  ])
+
+  return {
+    payload: empleados,
+    pagination: buildPaginationMeta({
+      page: pagination.page,
+      limit: pagination.limit,
+      totalDocs
+    })
+  }
+}
 
 export const employeesService = {
-  obtenerEmpleados: async () => {
-    return employeesRepository.getAll()
+  obtenerEmpleados: async (query) => {
+    return obtenerEmpleadosPaginados({}, query)
   },
 
-  obtenerEmpleadosActivos: async () => {
-    return employeesRepository.getAll({ activo: true })
+  obtenerEmpleadosActivos: async (query) => {
+    return obtenerEmpleadosPaginados({ activo: true }, query)
   },
 
   obtenerEmpleadoPorId: async (id) => {

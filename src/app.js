@@ -1,11 +1,13 @@
 import express from 'express'
 import swaggerUi from 'swagger-ui-express' //? muestra Swagger como una página web interactiva.
 import employeesRouter from './routes/employees.routes.js'
+import healthRouter from './routes/health.routes.js'
 import logsRouter from './routes/logs.routes.js'
 import mocksRouter from './routes/mocks.routes.js'
 import ordersRouter from './routes/orders.routes.js'
 import productsRouter from './routes/products.routes.js'
 import usersRouter from './routes/users.routes.js'
+import { config } from './config/env.config.js'
 import { swaggerSpecs } from './config/swagger.config.js'
 import { errorHandler, httpLogger, notFoundHandler } from './middlewares/index.js'
 
@@ -23,12 +25,17 @@ app.get('/', (req, res) => {
   })
 })
 
+app.use('/api/health', healthRouter)
+
 app.use('/api/products', productsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/employees', employeesRouter)
 app.use('/api/orders', ordersRouter)
-app.use('/api/mocks', mocksRouter)
-app.use('/api/logs', logsRouter) //* agregamos la ruta para probar los logs
+
+if (config.nodeEnv !== 'production') {
+  app.use('/api/mocks', mocksRouter)
+  app.use('/api/logs', logsRouter) //* agregamos la ruta para probar los logs
+}
 
 app.use(notFoundHandler)
 app.use(errorHandler)

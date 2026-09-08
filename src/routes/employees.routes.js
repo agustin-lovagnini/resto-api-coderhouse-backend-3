@@ -14,10 +14,30 @@ const router = Router()
  * @swagger
  * /api/employees:
  *   get:
- *     summary: Obtener todos los empleados
- *     description: Devuelve el listado completo de empleados del restaurante.
+ *     summary: Obtener empleados paginados
+ *     description: Devuelve un listado paginado de empleados del restaurante.
  *     tags:
  *       - Employees
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina a consultar.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de empleados por pagina.
+ *         example: 10
  *     responses:
  *       200:
  *         description: Empleados obtenidos correctamente.
@@ -46,10 +66,30 @@ router.get('/', obtenerEmpleados)
  * @swagger
  * /api/employees/activos:
  *   get:
- *     summary: Obtener empleados activos
- *     description: Devuelve el listado de empleados cuyo campo activo es true.
+ *     summary: Obtener empleados activos paginados
+ *     description: Devuelve un listado paginado de empleados cuyo campo activo es true.
  *     tags:
  *       - Employees
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina a consultar.
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de empleados por pagina.
+ *         example: 10
  *     responses:
  *       200:
  *         description: Empleados activos obtenidos correctamente.

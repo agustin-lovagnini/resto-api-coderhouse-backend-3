@@ -9,12 +9,26 @@ const populateOrder = (query) => {
 }
 
 export const ordersRepository = {
-  getAll: async (filter = {}) => {
-    return populateOrder(
-      OrderModel.find(filter)
+  getAll: async (filter = {}, { limit, skip } = {}) => {
+    const query = populateOrder(
+      OrderModel.find(filter) //? obtenemos los pedidos filtrados por el filtro pasado como parametro
         .select(orderProjection)
         .sort({ createdAt: -1 })
-    ).lean()
+    )
+
+    if (skip !== undefined) {
+      query.skip(skip)
+    }
+
+    if (limit !== undefined) {
+      query.limit(limit)
+    }
+
+    return query.lean()
+  },
+
+  countAll: async (filter = {}) => {
+    return OrderModel.countDocuments(filter)
   },
 
   getById: async (id) => {

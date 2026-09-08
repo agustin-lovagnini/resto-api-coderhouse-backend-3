@@ -33,6 +33,10 @@ const swaggerOptions = {
                 description: 'Gestion de pedidos del restaurante.'
             },
             {
+                name: 'Health',
+                description: 'Estado basico de disponibilidad de la API.'
+            },
+            {
                 name: 'Mocks',
                 description: 'Generacion e insercion de datos de prueba.'
             },

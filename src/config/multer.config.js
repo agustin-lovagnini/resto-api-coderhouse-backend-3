@@ -1,8 +1,9 @@
 import fs from 'fs' //? esto es necesario para crear las carpetas de uploads si no existen
 import path from 'path' //? esto es necesario para crear las carpetas de uploads si no existen
 import multer from 'multer'
+import { config } from './env.config.js'
 
-const uploadsRoot = 'uploads' //? carpeta raíz para almacenar los archivos subidos
+const uploadsRoot = config.uploadsDir //? carpeta raiz para almacenar los archivos subidos
 
 //! Definimos las rutas de las carpetas de uploads para diferentes tipos de archivos
 export const uploadFolders = Object.freeze({

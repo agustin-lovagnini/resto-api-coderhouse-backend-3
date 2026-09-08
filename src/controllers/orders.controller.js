@@ -2,11 +2,12 @@ import { ordersService } from '../services/orders.service.js'
 
 export const obtenerPedidos = async (req, res, next) => {
   try {
-    const pedidos = await ordersService.obtenerPedidos()
+    const resultado = await ordersService.obtenerPedidos(req.query)
 
     res.status(200).json({
       status: 'success',
-      payload: pedidos
+      payload: resultado.payload,
+      pagination: resultado.pagination
     })
   } catch (error) {
     next(error)
@@ -15,11 +16,12 @@ export const obtenerPedidos = async (req, res, next) => {
 
 export const obtenerPedidosPendientes = async (req, res, next) => {
   try {
-    const pedidos = await ordersService.obtenerPedidosPendientes()
+    const resultado = await ordersService.obtenerPedidosPendientes(req.query)
 
     res.status(200).json({
       status: 'success',
-      payload: pedidos
+      payload: resultado.payload,
+      pagination: resultado.pagination
     })
   } catch (error) {
     next(error)
