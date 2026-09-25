@@ -4,6 +4,8 @@ import {
   TIPOS_COMPROBANTE_PEDIDO
 } from '../constants/index.js'
 import {
+  createFileRequiredError,
+  createInvalidStateError,
   createNotFoundError,
   createValidationError
 } from '../errors/errorFactory.js'
@@ -76,7 +78,7 @@ const buildOrdersFilter = (query = {}) => {
 
   if (query.estado) {
     if (!Object.values(ESTADOS_PEDIDO).includes(query.estado)) { //? validamos que el estado pasado como parametro sea uno de los estados permitidos
-      throw createValidationError('El estado del pedido no es valido')
+      throw createInvalidStateError('El estado del pedido no es valido')
     }
 
     filter.estado = query.estado //? agregamos el filtro de estado al objeto filter
@@ -162,7 +164,7 @@ export const ordersService = {
     }
 
     if (!Object.values(ESTADOS_PEDIDO).includes(nuevoPedido.estado)) {
-      throw createValidationError('El estado del pedido no es valido')
+      throw createInvalidStateError('El estado del pedido no es valido')
     }
 
     const pedidoCreado = await ordersRepository.create(nuevoPedido)
@@ -182,7 +184,7 @@ export const ordersService = {
       orderData.estado &&
       !Object.values(ESTADOS_PEDIDO).includes(orderData.estado)
     ) {
-      throw createValidationError('El estado del pedido no es valido')
+      throw createInvalidStateError('El estado del pedido no es valido')
     }
 
     const datosActualizados = { ...orderData }
@@ -230,7 +232,7 @@ export const ordersService = {
 
   subirComprobantePedido: async (id, file, tipoDocumento) => {
     if (!file) {
-      throw createValidationError('El archivo es obligatorio')
+      throw createFileRequiredError()
     }
 
     if (!tipoDocumento) {

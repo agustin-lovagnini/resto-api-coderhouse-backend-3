@@ -39,7 +39,7 @@ export const usersRepository = {
 
   updateById: async (id, userData) => {
     return UserModel.findByIdAndUpdate(id, userData, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true
     }).select(userProjection)
   },
@@ -55,7 +55,7 @@ export const usersRepository = {
         }
       },
       {
-        new: true,
+        returnDocument: 'after',
         runValidators: true
       }
     ).select(userProjection)

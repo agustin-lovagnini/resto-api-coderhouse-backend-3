@@ -5,6 +5,7 @@ import {
 import { logger } from '../config/logger.config.js'
 import {
   createDuplicateError,
+  createFileRequiredError,
   createNotFoundError,
   createValidationError
 } from '../errors/errorFactory.js'
@@ -116,7 +117,7 @@ export const usersService = {
 
   subirDocumentoUsuario: async (id, file, tipoDocumento) => {
     if (!file) {
-      throw createValidationError('El archivo es obligatorio')
+      throw createFileRequiredError()
     }
 
     if (!tipoDocumento) {

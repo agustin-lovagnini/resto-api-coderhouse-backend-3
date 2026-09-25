@@ -57,8 +57,26 @@ const router = Router()
  *     responses:
  *       200:
  *         description: Pedidos obtenidos correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 payload:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Order'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  *       400:
  *         description: Parametros de paginacion o estado invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/', obtenerPedidos)
 
@@ -93,8 +111,26 @@ router.get('/', obtenerPedidos)
  *     responses:
  *       200:
  *         description: Pedidos pendientes obtenidos correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 payload:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Order'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  *       400:
  *         description: Parametros de paginacion invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/pendientes', obtenerPedidosPendientes)
 
@@ -186,6 +222,26 @@ router.post(
  *     description: Devuelve un pedido específico a partir de su ID de MongoDB.
  *     tags:
  *       - Orders
+ *     parameters:
+ *       - in: path
+ *         name: oid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del pedido.
+ *     responses:
+ *       200:
+ *         description: Pedido obtenido correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       404:
+ *         description: Pedido no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/:oid', obtenerPedidoPorId)
 
@@ -197,6 +253,31 @@ router.get('/:oid', obtenerPedidoPorId)
  *     description: Crea un nuevo pedido.
  *     tags:
  *       - Orders
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Order'
+ *     responses:
+ *       201:
+ *         description: Pedido creado correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       400:
+ *         description: Datos o estado del pedido invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Empleado o producto relacionado no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/', crearPedido)
 
@@ -208,6 +289,38 @@ router.post('/', crearPedido)
  *     description: Actualiza los datos de un pedido existente.
  *     tags:
  *       - Orders
+ *     parameters:
+ *       - in: path
+ *         name: oid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del pedido.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Order'
+ *     responses:
+ *       200:
+ *         description: Pedido actualizado correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       400:
+ *         description: Datos o estado del pedido invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Pedido o recurso relacionado no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.put('/:oid', actualizarPedido)
 
@@ -219,6 +332,26 @@ router.put('/:oid', actualizarPedido)
  *     description: Elimina un pedido existente a partir de su ID.
  *     tags:
  *       - Orders
+ *     parameters:
+ *       - in: path
+ *         name: oid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del pedido.
+ *     responses:
+ *       200:
+ *         description: Pedido eliminado correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       404:
+ *         description: Pedido no encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete('/:oid', eliminarPedido)
 

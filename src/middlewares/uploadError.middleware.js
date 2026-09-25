@@ -1,5 +1,9 @@
 import multer from 'multer'
-import { createValidationError } from '../errors/errorFactory.js'
+import {
+  createFileTooLargeError,
+  createInvalidFileTypeError,
+  createValidationError
+} from '../errors/errorFactory.js'
 import { logger } from '../config/logger.config.js'
 
 export const uploadErrorHandler = (error, req, res, next) => {
@@ -14,7 +18,7 @@ export const uploadErrorHandler = (error, req, res, next) => {
   })
 
   if (error.code === 'LIMIT_FILE_SIZE') {
-    return next(createValidationError('El archivo supera el tamaño maximo permitido'))
+    return next(createFileTooLargeError())
   }
 
   if (error.code === 'LIMIT_FILE_COUNT') {
@@ -22,7 +26,7 @@ export const uploadErrorHandler = (error, req, res, next) => {
   }
 
   if (error.code === 'LIMIT_UNEXPECTED_FILE') {
-    return next(createValidationError('El campo del archivo no coincide o el tipo de archivo no esta permitido'))
+    return next(createInvalidFileTypeError())
   }
 
   return next(createValidationError('Error al cargar el archivo'))

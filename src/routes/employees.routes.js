@@ -53,6 +53,14 @@ const router = Router()
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Employee'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Parametros de paginacion invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -105,6 +113,14 @@ router.get('/', obtenerEmpleados)
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Employee'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Parametros de paginacion invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Error interno del servidor.
  *         content:

@@ -49,7 +49,7 @@ export const ordersRepository = {
   updateById: async (id, orderData) => {
     return populateOrder(
       OrderModel.findByIdAndUpdate(id, orderData, {
-        new: true,
+        returnDocument: 'after',
         runValidators: true
       }).select(orderProjection)
     )
@@ -66,7 +66,7 @@ export const ordersRepository = {
           }
         },
         {
-          new: true,
+          returnDocument: 'after',
           runValidators: true
         }
       ).select(orderProjection)

@@ -1,8 +1,7 @@
 import winston from 'winston'
-import DailyRotateFile from 'winston-daily-rotate-file' //* Transporte: guardamos logs en archivos rotados por fecha
 import { config } from './env.config.js'
 
-//! Niveles de informacion de logs
+//! Define los niveles de log y sus colores correspondientes
 const logLevels = {
     fatal: 0,
     error: 1,
@@ -12,7 +11,6 @@ const logLevels = {
     debug: 5
 }
 
-//! Colores para cada nivel de log, segun su importancia
 const logColors = {
     fatal: 'red',
     error: 'red',
@@ -22,47 +20,53 @@ const logColors = {
     debug: 'blue'
 }
 
-winston.addColors(logColors)
+winston.addColors(logColors) //? Agrega los colores definidos a los niveles de log de Winston
 
-const consoleLogLevel = config.logLevel
-
+//! Define el formato de log/mensajes personalizado
 const logFormat = winston.format.combine(
     winston.format.timestamp({
         format: 'YYYY-MM-DD HH:mm:ss'
     }),
-    winston.format.printf(({ timestamp, level, message, ...metadata }) => { //* Formato de salida de los logs
-        const metadataText = Object.keys(metadata).length //* Si hay metadata, la mostramos en el log
-            ? ` ${JSON.stringify(metadata)}` //* Lo convertimos a texto JSON
+    winston.format.printf(({ timestamp, level, message, ...metadata }) => {
+        const metadataText = Object.keys(metadata).length
+            ? ` ${JSON.stringify(metadata)}`
             : ''
 
         return `${timestamp} [${level}] ${message}${metadataText}`
     })
 )
 
-const consoleFormat = winston.format.combine(
-    winston.format.colorize(),
-    logFormat
-)
+//! Define los transportes de log (archivos y consola)
+const transports = [
+    new winston.transports.File({//? Transport para logs de error
+        filename: 'logs/error.log',
+        level: 'error',
+        format: logFormat
+    }),
+    new winston.transports.File({//? Transport para logs combinados
+        filename: 'logs/combined.log',
+        level: config.logLevel,
+        format: logFormat
+    })
+]
 
-//? aca definimos el transporte de logs, donde van los logs
-const errorFileTransport = new DailyRotateFile({
-    filename: 'logs/error-%DATE%.log', 
-    datePattern: 'YYYY-MM-DD',
-    level: 'error', //* Solo guardamos logs de error y superiores en este archivo
-    maxSize: '5m', //* Tamaño máximo del archivo antes de rotar
-    maxFiles: '14d',
-    zippedArchive: false //* No comprimimos los archivos rotados
-})
+//! Agrega un transporte de consola solo en el entorno de desarrollo
+if (config.nodeEnv === 'development') {
+    transports.push(
+        new winston.transports.Console({
+            level: config.logLevel,
+            format: winston.format.combine(
+                winston.format.colorize(),
+                logFormat
+            )
+        })
+    )
+}
 
+//! Crea el logger de Winston con los niveles, formato y transportes definidos
 export const logger = winston.createLogger({
-    levels: logLevels, //* Niveles de log definidos anteriormente
-    level: consoleLogLevel, //* Nivel de log mínimo que se mostrará en consola
+    levels: logLevels,
+    level: config.logLevel,
     format: logFormat,
-    transports: [
-        new winston.transports.Console({ //* Indicamos a dónde van los logs (consola, archivo de errores rotado)
-            level: consoleLogLevel,
-            format: consoleFormat
-        }),
-        errorFileTransport //* Guardamos logs de error y superiores en un archivo rotado por fecha
-    ]
+    transports
 })
