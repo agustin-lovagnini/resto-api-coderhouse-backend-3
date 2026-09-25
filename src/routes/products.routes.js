@@ -15,9 +15,27 @@ const router = Router()
  * /api/products:
  *   get:
  *     summary: Obtener todos los productos
- *     description: Devuelve el listado completo de productos del restaurante.
+ *     description: Devuelve un listado paginado de productos del restaurante.
  *     tags:
  *       - Products
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina solicitada.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de productos por pagina.
  *     responses:
  *       200:
  *         description: Productos obtenidos correctamente.
@@ -33,6 +51,14 @@ const router = Router()
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Product'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Parametros de paginacion invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -47,9 +73,27 @@ router.get('/', obtenerProductos)
  * /api/products/available:
  *   get:
  *     summary: Obtener productos disponibles
- *     description: Devuelve los productos cuyo estado es DISPONIBLE.
+ *     description: Devuelve un listado paginado de productos cuyo estado es DISPONIBLE.
  *     tags:
  *       - Products
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina solicitada.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de productos por pagina.
  *     responses:
  *       200:
  *         description: Productos disponibles obtenidos correctamente.
@@ -65,6 +109,14 @@ router.get('/', obtenerProductos)
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Product'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Parametros de paginacion invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Error interno del servidor.
  *         content:
@@ -79,9 +131,27 @@ router.get('/available', obtenerProductosDisponibles)
  * /api/products/disponibles:
  *   get:
  *     summary: Obtener productos disponibles
- *     description: Devuelve los productos disponibles. Es una ruta alternativa a /api/products/available.
+ *     description: Devuelve un listado paginado de productos disponibles. Es una ruta alternativa a /api/products/available.
  *     tags:
  *       - Products
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Numero de pagina solicitada.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Cantidad maxima de productos por pagina.
  *     responses:
  *       200:
  *         description: Productos disponibles obtenidos correctamente.
@@ -97,6 +167,14 @@ router.get('/available', obtenerProductosDisponibles)
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Product'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Parametros de paginacion invalidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: Error interno del servidor.
  *         content:

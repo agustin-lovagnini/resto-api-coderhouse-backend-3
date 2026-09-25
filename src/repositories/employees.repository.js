@@ -38,7 +38,7 @@ export const employeesRepository = {
 
   updateById: async (id, employeeData) => {
     return EmployeeModel.findByIdAndUpdate(id, employeeData, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true
     }).select(employeeProjection)
   },

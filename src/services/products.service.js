@@ -1,10 +1,15 @@
 import { CATEGORIAS_PRODUCTO, ESTADOS_PRODUCTO } from '../constants/index.js'
 import {
     createDuplicateError,
+    createInvalidStateError,
     createNotFoundError,
     createValidationError
 } from '../errors/errorFactory.js'
 import { productsRepository } from '../repositories/products.repository.js'
+import {
+    buildPaginationMeta,
+    getPaginationParams
+} from '../utils/pagination.js'
 
 const calcularEstadoProducto = (stock) => {
     return stock > 0
@@ -12,16 +17,40 @@ const calcularEstadoProducto = (stock) => {
         : ESTADOS_PRODUCTO.SIN_STOCK
 }
 
+//! Función para obtener productos paginados según filtros y parámetros de consulta
+const obtenerProductosPaginados = async (filter, query) => {
+    const { page, limit, skip } = getPaginationParams(query) //? Obtenemos los parámetros de paginación de la consulta
+
+    //! Obtenemos los productos y el total de documentos de manera concurrente para optimizar el rendimiento
+    const [productos, totalDocs] = await Promise.all([
+        productsRepository.getAll(filter, { limit, skip }), //? Obtenemos los productos según el filtro y los parámetros de paginación
+        productsRepository.countAll(filter) //? Contamos cuántos productos existen en total
+    ])
+
+    return {
+        payload: productos,
+        pagination: buildPaginationMeta({
+            page,
+            limit,
+            totalDocs
+        })
+    }
+}
+
+//! Servicio de productos que expone métodos para interactuar con los productos en la base de datos
 export const productsService = {
-    obtenerProductos: async () => {
-        return productsRepository.getAll()
+    obtenerProductos: async (query = {}) => {
+        return obtenerProductosPaginados({}, query)
     },
 
-    obtenerProductosDisponibles: async () => {
-        return productsRepository.getAll({
-            stock: { $gt: 0 },
-            estado: ESTADOS_PRODUCTO.DISPONIBLE
-        })
+    obtenerProductosDisponibles: async (query = {}) => {
+        return obtenerProductosPaginados(
+            {
+                stock: { $gt: 0 },
+                estado: ESTADOS_PRODUCTO.DISPONIBLE
+            },
+            query
+        )
     },
 
     obtenerProductoPorId: async (id) => {
@@ -58,7 +87,7 @@ export const productsService = {
             productData.estado &&
             !Object.values(ESTADOS_PRODUCTO).includes(productData.estado)
         ) {
-            throw createValidationError('El estado del producto no es valido')
+            throw createInvalidStateError('El estado del producto no es valido')
         }
 
         const productoExistente = await productsRepository.getByNombre(
@@ -95,7 +124,7 @@ export const productsService = {
             productData.estado &&
             !Object.values(ESTADOS_PRODUCTO).includes(productData.estado)
         ) {
-            throw createValidationError('El estado del producto no es valido')
+            throw createInvalidStateError('El estado del producto no es valido')
         }
 
         if (

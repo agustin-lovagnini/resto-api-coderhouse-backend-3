@@ -11,7 +11,6 @@ API REST para la gestion de un restaurante. Permite trabajar con usuarios, produ
 - Dotenv
 - Multer
 - Winston
-- Winston Daily Rotate File
 - Swagger / OpenAPI
 - Mocha
 - Chai
@@ -106,12 +105,18 @@ Schemas reutilizables definidos:
 - `Employee`
 - `Order`
 - `OrderProduct`
+- `Pagination`
 - `SuccessResponse`
 - `ErrorResponse`
 
 Los errores documentados reflejan el manejo centralizado de la API:
 
-- `400 VALIDATION_ERROR`: datos invalidos, cantidades invalidas en mocks o estado invalido en pedidos.
+- `400 VALIDATION_ERROR`: datos generales invalidos.
+- `400 FILE_REQUIRED`: archivo obligatorio no recibido.
+- `400 INVALID_FILE_TYPE`: tipo de archivo no permitido.
+- `400 FILE_TOO_LARGE`: archivo mayor al limite configurado.
+- `400 INVALID_MOCK_QUANTITY`: cantidad de mocks invalida.
+- `400 INVALID_STATE`: estado de producto o pedido invalido.
 - `404 NOT_FOUND_ERROR`: recurso no encontrado.
 - `409 DUPLICATE_ERROR`: recurso duplicado.
 - `500 INTERNAL_SERVER_ERROR`: error interno del servidor.
@@ -227,18 +232,14 @@ Los errores importantes se guardan en:
 logs/
 ```
 
-Formato de archivo:
+Archivos generados:
 
 ```text
-logs/error-YYYY-MM-DD.log
+logs/error.log
+logs/combined.log
 ```
 
-Rotacion configurada:
-
-- crear archivos por fecha;
-- maximo 5 MB por archivo;
-- conservar logs por 14 dias;
-- guardar en archivo solo niveles `error` y `fatal`.
+`error.log` guarda los niveles `error` y `fatal`. `combined.log` registra la actividad permitida por `LOG_LEVEL`. La salida por consola se habilita solamente en `development`.
 
 La carpeta `logs/` esta en `.gitignore`, por lo tanto no se sube al repositorio.
 
@@ -330,9 +331,9 @@ Respuesta esperada:
 ### Products
 
 ```http
-GET    /api/products
-GET    /api/products/available
-GET    /api/products/disponibles
+GET    /api/products?page=1&limit=10
+GET    /api/products/available?page=1&limit=10
+GET    /api/products/disponibles?page=1&limit=10
 GET    /api/products/:pid
 POST   /api/products
 PUT    /api/products/:pid
@@ -577,16 +578,18 @@ Esto hace que la configuracion cargue `.env.test` y use una base separada, por e
 resto-api-test
 ```
 
-Los datos creados durante los tests son controlados y descartables. La suite conecta a MongoDB de testing, limpia las colecciones antes o despues de cada grupo y cierra la conexion al finalizar.
+Los datos creados durante los tests son controlados y descartables. La suite exige `NODE_ENV=test` y que el nombre de la base incluya `test`, limpia las colecciones antes o despues de cada grupo y cierra la conexion al finalizar. Los documentos y comprobantes generados por los tests se eliminan del disco al terminar.
 
 Modulos cubiertos:
 
 - `Swagger`: acceso a `/api/docs` y carga de Swagger UI.
 - `Logger`: acceso a `/api/logs/test`.
-- `Users`: listado paginado, creacion correcta, datos incompletos, usuario inexistente y carga de documento.
+- `Health`: estado, entorno, uptime y timestamp de la API.
+- `Users`: listado paginado, creacion correcta, datos incompletos, usuario inexistente, carga de documento y errores por archivo faltante, tipo invalido o tamaño excesivo.
 - `Employees`: creacion correcta y listado paginado.
 - `Mocks`: generacion correcta y errores por cantidad faltante o invalida.
 - `Orders`: listado paginado, filtro por estado, creacion con empleado/producto controlados, carga de comprobante, consulta por ID, actualizacion de estado, estado invalido, datos incompletos y pedido inexistente.
+- `Products`: CRUD principal, listado paginado, estados derivados y casos de error.
 - `Not found`: ruta inexistente con formato de error centralizado.
 
 Los tests validan:
@@ -600,50 +603,71 @@ Los tests validan:
 Ejemplo de salida esperada:
 
 ```text
-24 passing
+35 passing
 ```
 
 ## Docker
 
-El proyecto incluye un `Dockerfile` para construir una imagen de la API y un `.dockerignore` para evitar copiar archivos innecesarios o sensibles dentro de la imagen.
+El proyecto incluye un `Dockerfile` multi-stage, un `.dockerignore` y `docker-compose.yaml`. Compose levanta la API y MongoDB, espera a que la base supere su healthcheck y conecta ambos servicios mediante una red privada.
 
-Construir la imagen:
-
-```bash
-docker build -t resto-api .
-```
-
-Ejecutar el contenedor usando variables desde `.env`:
+Construir solamente la imagen de la API:
 
 ```bash
-docker run --env-file .env -p 8080:8080 --name resto-api-container resto-api
+docker build -t resto-api-final .
 ```
 
-La API queda disponible en:
+Levantar la aplicacion completa:
 
-```text
-http://localhost:8080
+```bash
+docker compose up --build -d
 ```
 
-Endpoints recomendados para probar el contenedor:
+Verificar el estado de los servicios:
+
+```bash
+docker compose ps
+```
+
+Compose configura dentro del contenedor:
+
+```env
+PORT=8080
+MONGODB_URI=mongodb://mongo:27017/resto-api
+NODE_ENV=production
+LOG_LEVEL=info
+UPLOADS_DIR=/app/uploads
+```
+
+La API queda disponible en `http://localhost:8080`. Endpoints recomendados:
 
 ```text
 http://localhost:8080/api/health
 http://localhost:8080/api/docs
 http://localhost:8080/api/users?page=1&limit=10
+http://localhost:8080/api/products?page=1&limit=10
 ```
 
-Detener el contenedor:
+Ver logs de la API:
 
 ```bash
-docker stop resto-api-container
+docker compose logs api
 ```
 
-Si se quiere volver a usar el mismo nombre de contenedor despues de detenerlo, se puede eliminar el contenedor detenido:
+Detener y eliminar los contenedores y la red:
 
 ```bash
-docker rm resto-api-container
+docker compose down
 ```
+
+No usar `docker compose down -v` si se quieren conservar los datos.
+
+Volumenes:
+
+- `mongo_data`: datos de MongoDB.
+- `uploads_data`: documentos y comprobantes subidos.
+- `logs_data`: archivos `error.log` y `combined.log`.
+
+El `Dockerfile` usa una etapa `dependencies` para instalar solamente dependencias de produccion y una etapa `runner` para ejecutar la API con el contenido necesario.
 
 Archivos y carpetas que no deben copiarse a la imagen:
 
@@ -656,7 +680,7 @@ Archivos y carpetas que no deben copiarse a la imagen:
 - `coverage`
 - archivos temporales o logs generados
 
-Los uploads se configuran con `UPLOADS_DIR`. En Docker se recomienda usar un volumen si se quiere conservar archivos subidos fuera del ciclo de vida del contenedor.
+Los uploads no se consideran almacenamiento permanente por si solos. Compose usa un volumen para conservarlos localmente; en un despliegue real se recomienda almacenamiento externo dedicado.
 
 ## Probar con Postman
 

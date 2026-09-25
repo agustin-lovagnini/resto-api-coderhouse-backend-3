@@ -2,11 +2,13 @@ import { productsService } from '../services/products.service.js'
 
 export const obtenerProductos = async (req, res, next) => {
     try {
-        const productos = await productsService.obtenerProductos()
+        const { payload, pagination } =
+            await productsService.obtenerProductos(req.query)
 
         res.status(200).json({
             status: 'success',
-            payload: productos
+            payload,
+            pagination
         })
     } catch (error) {
         next(error)
@@ -15,11 +17,13 @@ export const obtenerProductos = async (req, res, next) => {
 
 export const obtenerProductosDisponibles = async (req, res, next) => {
     try {
-        const productos = await productsService.obtenerProductosDisponibles()
+        const { payload, pagination } =
+            await productsService.obtenerProductosDisponibles(req.query)
 
         res.status(200).json({
             status: 'success',
-            payload: productos
+            payload,
+            pagination
         })
     } catch (error) {
         next(error)

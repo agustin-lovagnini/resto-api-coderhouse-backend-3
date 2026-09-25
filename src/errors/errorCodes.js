@@ -1,6 +1,11 @@
-export const ERROR_CODES = Object.freeze({ //* visto en clase "FREEZE" para que no se pueda modificar el objeto
+export const ERROR_CODES = Object.freeze({ //* freeze() para que no se puedan modificar los valores de los codigos de error
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   NOT_FOUND_ERROR: 'NOT_FOUND_ERROR',
   DUPLICATE_ERROR: 'DUPLICATE_ERROR',
+  FILE_REQUIRED: 'FILE_REQUIRED',
+  INVALID_FILE_TYPE: 'INVALID_FILE_TYPE',
+  FILE_TOO_LARGE: 'FILE_TOO_LARGE',
+  INVALID_MOCK_QUANTITY: 'INVALID_MOCK_QUANTITY',
+  INVALID_STATE: 'INVALID_STATE',
   INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR'
 })

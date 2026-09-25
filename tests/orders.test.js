@@ -4,13 +4,15 @@ import app from '../src/app.js'
 import {
     clearTestDatabase,
     closeTestDatabase,
-    connectTestDatabase
+    connectTestDatabase,
+    removeTestFile
 } from './setup.js'
 
 describe('Orders endpoints', () => {
     let empleadoId //* Guardamos el ID del empleado creado para usarlo en los tests de pedidos
     let productoId //* Guardamos el ID del producto creado para usarlo en los tests de pedidos
     let pedidoId //* Guardamos el ID del pedido creado para usarlo en los siguientes tests
+    let uploadedReceiptPath
 
     before(async () => {
         await connectTestDatabase()
@@ -47,8 +49,9 @@ describe('Orders endpoints', () => {
     })
 
     after(async () => {
-        await clearTestDatabase()
-        await closeTestDatabase()
+        await removeTestFile(uploadedReceiptPath) //? Eliminamos el archivo de prueba creado durante los tests
+        await clearTestDatabase() //? Limpiamos la base de datos de testing después de los tests
+        await closeTestDatabase() //? Cerramos la conexión con la base de datos de testing
     })
 
     //! Tests funcionales para los endpoints de pedidos
@@ -123,6 +126,8 @@ describe('Orders endpoints', () => {
             'mimetype',
             'application/pdf'
         )
+
+        uploadedReceiptPath = response.body.payload.comprobantes[0].ruta //? Guardamos la ruta del PDF creado por Multer para eliminarlo después de los tests
     })
 
     //! Test para filtrar pedidos por estado
@@ -180,7 +185,7 @@ describe('Orders endpoints', () => {
             .expect(400)
 
         expect(response.body).to.have.property('status', 'error')
-        expect(response.body).to.have.property('code', 'VALIDATION_ERROR')
+        expect(response.body).to.have.property('code', 'INVALID_STATE')
         expect(response.body).to.have.property(
             'message',
             'El estado del pedido no es valido'

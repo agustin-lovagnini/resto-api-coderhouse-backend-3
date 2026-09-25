@@ -19,6 +19,36 @@ export const ERROR_DICTIONARY = Object.freeze({
     message: 'El recurso ya existe'
   },
 
+  FILE_REQUIRED: {
+    code: ERROR_CODES.FILE_REQUIRED,
+    statusCode: 400,
+    message: 'El archivo es obligatorio'
+  },
+
+  INVALID_FILE_TYPE: {
+    code: ERROR_CODES.INVALID_FILE_TYPE,
+    statusCode: 400,
+    message: 'El tipo de archivo no esta permitido'
+  },
+
+  FILE_TOO_LARGE: {
+    code: ERROR_CODES.FILE_TOO_LARGE,
+    statusCode: 400,
+    message: 'El archivo supera el tamaño maximo permitido'
+  },
+
+  INVALID_MOCK_QUANTITY: {
+    code: ERROR_CODES.INVALID_MOCK_QUANTITY,
+    statusCode: 400,
+    message: 'La cantidad de mocks no es valida'
+  },
+
+  INVALID_STATE: {
+    code: ERROR_CODES.INVALID_STATE,
+    statusCode: 400,
+    message: 'El estado indicado no es valido'
+  },
+
   INTERNAL_SERVER_ERROR: {
     code: ERROR_CODES.INTERNAL_SERVER_ERROR,
     statusCode: 500,

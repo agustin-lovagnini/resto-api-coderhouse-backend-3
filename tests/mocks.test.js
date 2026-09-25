@@ -59,7 +59,7 @@ describe('Mocks endpoints', () => {
             .expect(400)
 
         expect(response.body).to.have.property('status', 'error')
-        expect(response.body).to.have.property('code', 'VALIDATION_ERROR') //? Esperamos que la respuesta tenga la propiedad 'code' con valor 'VALIDATION_ERROR'
+        expect(response.body).to.have.property('code', 'INVALID_MOCK_QUANTITY')
         expect(response.body).to.have.property(
             'message',
             'El campo cantidad es obligatorio'
@@ -74,7 +74,7 @@ describe('Mocks endpoints', () => {
             .expect(400)
 
         expect(response.body).to.have.property('status', 'error')
-        expect(response.body).to.have.property('code', 'VALIDATION_ERROR')
+        expect(response.body).to.have.property('code', 'INVALID_MOCK_QUANTITY')
         expect(response.body).to.have.property(
             'message',
             'El campo cantidad debe ser numerico'

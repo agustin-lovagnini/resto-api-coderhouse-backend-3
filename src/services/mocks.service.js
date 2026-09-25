@@ -3,6 +3,7 @@ import { generarPedidosMock } from '../mocks/orders.mock.js'
 import { generarUsuariosMock } from '../mocks/users.mock.js'
 import {
     createInternalServerError,
+    createInvalidMockQuantityError,
     createValidationError
 } from '../errors/errorFactory.js'
 import { logger } from '../config/logger.config.js'
@@ -19,7 +20,7 @@ const validarCantidadMock = (cantidad, campo = 'cantidad') => {
             campo
         })
 
-        throw createValidationError(`El campo ${campo} es obligatorio`)
+        throw createInvalidMockQuantityError(`El campo ${campo} es obligatorio`)
     }
 
     const cantidadNumerica = Number(cantidad)
@@ -30,7 +31,7 @@ const validarCantidadMock = (cantidad, campo = 'cantidad') => {
             cantidad
         })
 
-        throw createValidationError(`El campo ${campo} debe ser numerico`)
+        throw createInvalidMockQuantityError(`El campo ${campo} debe ser numerico`)
     }
 
     if (!Number.isInteger(cantidadNumerica)) {
@@ -39,7 +40,7 @@ const validarCantidadMock = (cantidad, campo = 'cantidad') => {
             cantidad: cantidadNumerica
         })
 
-        throw createValidationError(`El campo ${campo} debe ser un numero entero`)
+        throw createInvalidMockQuantityError(`El campo ${campo} debe ser un numero entero`)
     }
 
     if (cantidadNumerica <= 0) {
@@ -48,7 +49,7 @@ const validarCantidadMock = (cantidad, campo = 'cantidad') => {
             cantidad: cantidadNumerica
         })
 
-        throw createValidationError(`El campo ${campo} debe ser mayor a 0`)
+        throw createInvalidMockQuantityError(`El campo ${campo} debe ser mayor a 0`)
     }
 
     if (cantidadNumerica > MAX_MOCKS_PER_REQUEST) {
@@ -58,7 +59,7 @@ const validarCantidadMock = (cantidad, campo = 'cantidad') => {
             maximo: MAX_MOCKS_PER_REQUEST
         })
 
-        throw createValidationError(
+        throw createInvalidMockQuantityError(
             `El campo ${campo} no puede ser mayor a ${MAX_MOCKS_PER_REQUEST}`
         )
     }
@@ -187,7 +188,7 @@ export const mocksService = {
         if (users === undefined && employees === undefined && orders === undefined) {
             logger.warning('No se recibieron cantidades para popular mocks')
 
-            throw createValidationError('Debe indicarse al menos una cantidad para popular mocks')
+            throw createInvalidMockQuantityError('Debe indicarse al menos una cantidad para popular mocks')
         }
 
         //* Usamos !== undefined para validar tambien valores invalidos como 0, texto o decimales.

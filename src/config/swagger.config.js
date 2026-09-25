@@ -250,6 +250,35 @@ const swaggerOptions = {
                         }
                     }
                 },
+                Pagination: {
+                    type: 'object',
+                    properties: {
+                        page: {
+                            type: 'integer',
+                            example: 1
+                        },
+                        limit: {
+                            type: 'integer',
+                            example: 10
+                        },
+                        totalDocs: {
+                            type: 'integer',
+                            example: 25
+                        },
+                        totalPages: {
+                            type: 'integer',
+                            example: 3
+                        },
+                        hasPrevPage: {
+                            type: 'boolean',
+                            example: false
+                        },
+                        hasNextPage: {
+                            type: 'boolean',
+                            example: true
+                        }
+                    }
+                },
                 ErrorResponse: {
                     type: 'object',
                     properties: {
@@ -259,6 +288,17 @@ const swaggerOptions = {
                         },
                         code: {
                             type: 'string',
+                            enum: [
+                                'VALIDATION_ERROR',
+                                'NOT_FOUND_ERROR',
+                                'DUPLICATE_ERROR',
+                                'FILE_REQUIRED',
+                                'INVALID_FILE_TYPE',
+                                'FILE_TOO_LARGE',
+                                'INVALID_MOCK_QUANTITY',
+                                'INVALID_STATE',
+                                'INTERNAL_SERVER_ERROR'
+                            ],
                             example: 'VALIDATION_ERROR'
                         },
                         message: {

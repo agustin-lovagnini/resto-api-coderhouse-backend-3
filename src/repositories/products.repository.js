@@ -4,12 +4,25 @@ const productProjection = 'nombre descripcion categoria precio stock estado crea
 
 
 export const productsRepository = {
-  getAll: async (filter = {}) => {
-    return ProductModel.find(filter)
-      .select(productProjection)
-      .sort({ createdAt: -1 })
-      .lean()
-  },
+  getAll: async (filter = {}, { limit, skip } = {}) => {
+  const query = ProductModel.find(filter)
+    .select(productProjection)
+    .sort({ createdAt: -1 })
+
+  if (Number.isInteger(skip)) {
+    query.skip(skip)
+  }
+
+  if (Number.isInteger(limit)) {
+    query.limit(limit)
+  }
+
+  return query.lean()
+},
+
+countAll: async (filter = {}) => {
+  return ProductModel.countDocuments(filter)
+},
 
   getById: async (id) => {
     return ProductModel.findById(id)
@@ -29,7 +42,7 @@ export const productsRepository = {
 
   updateById: async (id, productData) => {
     return ProductModel.findByIdAndUpdate(id, productData, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true
     }).select(productProjection)
   },
